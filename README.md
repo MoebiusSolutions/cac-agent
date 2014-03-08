@@ -13,6 +13,11 @@ to use.
 The startup code for jgit.sh is a good example of using
 this agent:
 
+	#!/bin/sh
+	# Git bash
+	
+	dir="$(cd "$(dirname "$0")" && pwd -W)"
+	
 	java \
 	-Xmx512m \
 	-javaagent:"$dir"/mscapi-agent.jar=load \
