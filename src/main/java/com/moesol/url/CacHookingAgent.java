@@ -3,7 +3,7 @@ package com.moesol.url;
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 
-import com.moesol.cac.key.selector.SwingSelectorKeyManager;
+import com.moesol.cac.agent.selector.SwingSelectorKeyManager;
 
 public class CacHookingAgent {
 	public static boolean DEBUG = false;

@@ -3,7 +3,7 @@ package com.moesol.url;
 import java.io.BufferedInputStream;
 import java.net.URL;
 
-import com.moesol.cac.key.selector.SwingSelectorKeyManager;
+import com.moesol.cac.agent.selector.SwingSelectorKeyManager;
 
 public class DumpURL {
 

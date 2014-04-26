@@ -1,4 +1,4 @@
-package com.moesol.cac.key.selector;
+package com.moesol.cac.agent.selector;
 
 import java.io.File;
 import java.security.KeyStore;
