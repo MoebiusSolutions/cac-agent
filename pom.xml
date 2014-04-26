@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>usn.otm</groupId>
-	<artifactId>mscapi-agent</artifactId>
+	<artifactId>cac-agent</artifactId>
 	<version>1.2</version>
 	<packaging>jar</packaging>
-	<name>mscapi-agent</name>
+	<name>cac-agent</name>
 	<description>Builds a javaagent jar that hooks SSL in Java
 	to use Windows-MY keystore by default, and posts a Swing
 	UI to pick which key you want to use.</description>
@@ -37,30 +37,20 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>attached</goal>
-						</goals>
-						<phase>package</phase>
-						<configuration>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-							<archive>
-								<manifestEntries>
-									<Premain-Class>com.moesol.url.MscapiHookingAgent</Premain-Class>
-									<Can-Redefine-Classes>false</Can-Redefine-Classes>
-									<Can-Retransform-Classes>false</Can-Retransform-Classes>
-									<Git-Commit-Id>${mvngit.commit.id}</Git-Commit-Id>
-								</manifestEntries>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Premain-Class>com.moesol.url.CacHookingAgent</Premain-Class>
+							<Can-Redefine-Classes>false</Can-Redefine-Classes>
+							<Can-Retransform-Classes>false</Can-Retransform-Classes>
+							<Git-Commit-Id>${mvngit.commit.id}</Git-Commit-Id>
+						</manifestEntries>
+					</archive>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

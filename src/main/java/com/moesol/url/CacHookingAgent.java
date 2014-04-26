@@ -5,7 +5,7 @@ import java.lang.instrument.Instrumentation;
 
 import com.moesol.cac.key.selector.SwingSelectorKeyManager;
 
-public class MscapiHookingAgent {
+public class CacHookingAgent {
 	public static boolean DEBUG = false;
 	public static String CONTEXT = "TLS";
 

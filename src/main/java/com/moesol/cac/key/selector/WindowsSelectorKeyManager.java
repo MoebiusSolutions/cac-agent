@@ -2,7 +2,7 @@ package com.moesol.cac.key.selector;
 
 import java.security.KeyStore;
 
-import com.moesol.url.MscapiHookingAgent;
+import com.moesol.url.CacHookingAgent;
 
 public class WindowsSelectorKeyManager extends SwingSelectorKeyManager {
 	
@@ -13,7 +13,7 @@ public class WindowsSelectorKeyManager extends SwingSelectorKeyManager {
 	}
 
 	public static void main(String[] args) {
-		MscapiHookingAgent.DEBUG = true;
+		CacHookingAgent.DEBUG = true;
 		System.out.println("chose: " + new WindowsSelectorKeyManager().chooseClientAlias(null, null, null));
 	}
 

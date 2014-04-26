@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.moesol.url.Config;
-import com.moesol.url.MscapiHookingAgent;
+import com.moesol.url.CacHookingAgent;
 
 /**
  * When installed as the default key manager, this class prompts the user as needed to choose a key.
@@ -43,9 +43,9 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 	 * @throws KeyManagementException
 	 */
 	public static void configureSwingKeyManagerAsDefault() throws NoSuchAlgorithmException, KeyManagementException {
-		if (MscapiHookingAgent.DEBUG) { System.out.println("Context: " + MscapiHookingAgent.CONTEXT); }
+		if (CacHookingAgent.DEBUG) { System.out.println("Context: " + CacHookingAgent.CONTEXT); }
 		KeyManager[] kmgrs = makeKeyManagers();
-		SSLContext sslContext = SSLContext.getInstance(MscapiHookingAgent.CONTEXT);
+		SSLContext sslContext = SSLContext.getInstance(CacHookingAgent.CONTEXT);
 		sslContext.init(kmgrs, null, new java.security.SecureRandom());
 		SSLContext.setDefault(sslContext);
 
@@ -80,9 +80,9 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 
 	@Override
 	public synchronized String chooseClientAlias(final String[] keyType, final Principal[] issuers, Socket socket) {
-		if (MscapiHookingAgent.DEBUG) { System.out.println("chooseClientAlias: "); }
+		if (CacHookingAgent.DEBUG) { System.out.println("chooseClientAlias: "); }
 		if (choosenAlias != null) {
-			if (MscapiHookingAgent.DEBUG) { System.out.println("cached chooseClientAlias: " + choosenAlias); }
+			if (CacHookingAgent.DEBUG) { System.out.println("cached chooseClientAlias: " + choosenAlias); }
 			return choosenAlias;
 		}
 		
@@ -91,7 +91,7 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 		if (choosenAlias != null) {
 			choosenAlias = choosenAlias.trim();
 			if (!choosenAlias.isEmpty()) {
-				if (MscapiHookingAgent.DEBUG) { System.out.println("config chooseClientAlias: " + choosenAlias); }
+				if (CacHookingAgent.DEBUG) { System.out.println("config chooseClientAlias: " + choosenAlias); }
 				return choosenAlias;
 			}
 		}
@@ -107,7 +107,7 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 		} catch (Exception e) {
 			throw reportAndConvert(e);
 		}
-		if (MscapiHookingAgent.DEBUG) { System.out.println("chooseClientAlias: " + choosenAlias); }
+		if (CacHookingAgent.DEBUG) { System.out.println("chooseClientAlias: " + choosenAlias); }
 		return choosenAlias;
 	}
 
@@ -166,7 +166,7 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 
 	@Override
 	public String[] getClientAliases(String keyType, Principal[] issuers) {
-		if (MscapiHookingAgent.DEBUG) { System.out.println("getClientAliases: "); }
+		if (CacHookingAgent.DEBUG) { System.out.println("getClientAliases: "); }
 		try {
 			KeyStore ks = getKeyStore();
 			if (ks == null) {

@@ -12,7 +12,7 @@ public class DumpURL {
 	 */
 	public static void main(String[] args) {
 		try {
-			MscapiHookingAgent.maybeSetTrustFile();
+			CacHookingAgent.maybeSetTrustFile();
 			SwingSelectorKeyManager.configureSwingKeyManagerAsDefault();
 
 			URL url = new URL(args[0]);

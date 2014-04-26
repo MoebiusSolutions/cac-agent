@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.SwingUtilities;
 
-import com.moesol.url.MscapiHookingAgent;
+import com.moesol.url.CacHookingAgent;
 
 public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 
@@ -100,7 +100,7 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 	}
 
 	public static void main(String[] args) {
-		MscapiHookingAgent.DEBUG = true;
+		CacHookingAgent.DEBUG = true;
 		System.out.println("chose: "
 				+ new Pkcs11SelectorKeyManager().chooseClientAlias(null, null, null));
 	}
