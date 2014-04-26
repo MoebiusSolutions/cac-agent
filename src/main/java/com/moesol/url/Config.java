@@ -34,7 +34,7 @@ public class Config {
 		}
 	}
 	private static Config doLoadProperties(String userHome) throws IOException, FileNotFoundException {
-		File file = new File(userHome, ".mscapi.properties");
+		File file = new File(userHome, CacHookingAgent.CAC_AGENT_DIR + "/properties");
 		if (!file.exists()) { return new Config(); }
 		
 		try (FileInputStream fis = new FileInputStream(file)) {

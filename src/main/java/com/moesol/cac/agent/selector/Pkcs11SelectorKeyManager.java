@@ -44,7 +44,7 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 		try {
 			System.out.println("setUp pkcs11 start");
 			String home = System.getProperty("user.home");
-			String configName = home + "/.moesol/cac-agent/pkcs11.cfg";
+			String configName = home + "/" + CacHookingAgent.CAC_AGENT_DIR + "/pkcs11.cfg";
 			File configFile = new File(configName);
 			if (configFile.exists()) {
 				provider = new sun.security.pkcs11.SunPKCS11(configName);
