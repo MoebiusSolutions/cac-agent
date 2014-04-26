@@ -1,6 +1,9 @@
 package com.moesol.url;
 
+import java.io.File;
 import java.lang.instrument.Instrumentation;
+
+import com.moesol.cac.key.selector.SwingSelectorKeyManager;
 
 public class MscapiHookingAgent {
 	public static boolean DEBUG = false;
@@ -13,7 +16,17 @@ public class MscapiHookingAgent {
 		}
 		Config config = Config.loadFromUserHome();
 		maybeSetTrustSystemProperties(config);
+		maybeSetTrustFile();
 		SwingSelectorKeyManager.configureSwingKeyManagerAsDefault();
+	}
+	
+	public static void maybeSetTrustFile() {
+		File trustStoreFile = new File(System.getProperty("user.home"), ".moesol/cac-agent/truststore.jks");
+		if (trustStoreFile.canRead()) {
+			System.out.println("Using trustore " + trustStoreFile.getPath());
+			System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+			System.setProperty("javax.net.ssl.trustStore", trustStoreFile.getPath());
+		}
 	}
 
 	private static void maybeSetTrustSystemProperties(Config config) {
