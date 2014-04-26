@@ -54,6 +54,43 @@ which hooks into the internal jgit inside of Eclipse.
 
 [1]: https://www.moesol.com/roller/rhastings/entry/inject_a_cac_identity_chooser
 
+# Windows Key/Trust Store Integration
+
+On Windows this agent sets up the Windows-MY keystore so that Java can
+integration with Windows. If you have your CAC working with IE or Chrome then
+Java will be able to share this configuration. You can also configure to use
+the Windows trust store.
+
+# Linux PKCS#11 Integration and JKS Based Trust Store
+
+On Linux this agent sets up a PKCS#11 providers. Rather than require you to 
+modify your Java installation to statically configure a PKCS#11 provider, this
+agent looks for this file:
+
+	${user.home}/.moesol/cac-agent/pkcs11.cfg
+	
+The contents of this file should setup the PKCS#11 provider. For Ubuntu, this
+configuration works:
+
+	library=/usr/local/lib/libcackey.so
+	name="CAC Key"
+	
+To date, we have not been able to get the NSS provider working so that you
+could have Java share the Firefox or Chrome key/trustsore. Instead, this
+agent looks for this file:
+
+	${user.home}/.moesol/cac-agent/truststore.jks
+	
+If it exists, it sets `javax.net.ssl.trustStore` to point at the file.
+The net result is that to configure cac-agent on Ubuntu you need to create
+two files
+
+1. ${user.home}/.moesol/cac-agent/pkcs11.cfg
+2. ${user.home}/.moesol/cac-agent/truststore.jks
+
+If you upgrade Java cac-agent should continue to work since the CAC
+configuration information is stored in your home directory.
+
 # sslVerify=false
 
 If you set [http] sslVerify=false, you will cause jgit to setup a custom SSL context which will bypass

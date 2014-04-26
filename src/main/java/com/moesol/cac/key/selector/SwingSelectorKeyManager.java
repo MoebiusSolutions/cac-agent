@@ -1,4 +1,4 @@
-package com.moesol.url;
+package com.moesol.cac.key.selector;
 
 import java.net.Socket;
 import java.security.KeyManagementException;
@@ -7,9 +7,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -18,14 +22,26 @@ import javax.net.ssl.X509KeyManager;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-public class SwingSelectorKeyManager implements X509KeyManager {
-	private final Object windowsMyLock = new Object();
-	private KeyStore windowsMY;
+import com.moesol.url.Config;
+import com.moesol.url.MscapiHookingAgent;
+
+/**
+ * When installed as the default key manager, this class prompts the user as needed to choose a key.
+ * @author hastings
+ */
+public abstract class SwingSelectorKeyManager implements X509KeyManager {
 	private String choosenAlias = null;
+	private final Object keyStoreLock = new Object();
+	private KeyStore keyStore;
 	
 	public SwingSelectorKeyManager() {
 	}
 
+	/**
+	 * Injects this manager into the SSLContext.
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyManagementException
+	 */
 	public static void configureSwingKeyManagerAsDefault() throws NoSuchAlgorithmException, KeyManagementException {
 		if (MscapiHookingAgent.DEBUG) { System.out.println("Context: " + MscapiHookingAgent.CONTEXT); }
 		KeyManager[] kmgrs = makeKeyManagers();
@@ -36,11 +52,34 @@ public class SwingSelectorKeyManager implements X509KeyManager {
 		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 	}
 	private static KeyManager[] makeKeyManagers() {
-		return new KeyManager[] { new SwingSelectorKeyManager() };
+		String os = System.getProperty("os.name").toLowerCase();
+		if (os.startsWith("win")) {
+			System.out.println("Windows key manager");
+			return new KeyManager[] { new WindowsSelectorKeyManager() };
+		} else {
+			System.out.println("Linux key manager");
+			return new KeyManager[] { new Pkcs11SelectorKeyManager() };
+		}
 	}
+	
+	private KeyStore getKeyStore() {
+		synchronized (keyStoreLock) {
+			if (keyStore != null) {
+				return keyStore;
+			}
+			try {
+				keyStore = accessKeyStore();
+			} catch (Exception e) {
+				reportAndConvert(e);
+			}
+			return keyStore;
+		}
+	}
+	
+	protected abstract KeyStore accessKeyStore() throws Exception;
 
 	@Override
-	public synchronized String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
+	public synchronized String chooseClientAlias(final String[] keyType, final Principal[] issuers, Socket socket) {
 		if (MscapiHookingAgent.DEBUG) { System.out.println("chooseClientAlias: "); }
 		if (choosenAlias != null) {
 			if (MscapiHookingAgent.DEBUG) { System.out.println("cached chooseClientAlias: " + choosenAlias); }
@@ -58,10 +97,11 @@ public class SwingSelectorKeyManager implements X509KeyManager {
 		}
 		
 		try {
+			final String[] aliases = getClientAliases(null, issuers);
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					choosenAlias = pickOnSwingThread();
+					choosenAlias = pickOnSwingThread(aliases);
 				}
 			});
 		} catch (Exception e) {
@@ -71,26 +111,54 @@ public class SwingSelectorKeyManager implements X509KeyManager {
 		return choosenAlias;
 	}
 
-	private String pickOnSwingThread() {
-		Object[] possibilities = getClientAliases(null, null);
-		String s = (String)JOptionPane.showInputDialog(null,
+	private String pickOnSwingThread(String[] aliases) {
+		Object[] possibilities = makeCertList(aliases);
+		Object pick = JOptionPane.showInputDialog(null,
 		                    "Choose certificate:",
 		                    "Customized Dialog",
 		                    JOptionPane.PLAIN_MESSAGE,
 		                    null,
 		                    possibilities,
 		                    possibilities[0]);
-		//If a string was returned, say so.
-		if ((s != null) && (s.length() > 0)) {
-			return s;
+		if (pick != null) {
+			CertDescription cert = (CertDescription) pick;
+			return cert.getAlias();
 		}
 		return null;
 	}
 	
+	private Object[] makeCertList(String[] aliases) {
+		if (keyStore == null) {
+			return new Object[] { 
+				new CertDescription(null, "<No Identifies Found>"),
+			};
+		}
+		
+		Object[] result = new Object[aliases.length];
+		for (int i = 0; i < aliases.length; i++) {
+			final String alias = aliases[i]; 
+			Certificate cert;
+			try {
+				cert = keyStore.getCertificate(alias);
+				X509Certificate x509 = (X509Certificate) cert; 
+				String purpose = X509PurposeDecoder.decode(x509);
+				Collection<List<?>> alt = x509.getSubjectAlternativeNames();
+				String names = alt == null ? x509.getSubjectX500Principal().toString() : alt.toString();
+				
+				String desc = String.format("%s, %s, %s", alias, purpose, names);
+				
+				result[i] = new CertDescription(alias, desc);
+			} catch (ClassCastException | KeyStoreException | CertificateParsingException e1) {
+				result[i] = new CertDescription(alias, alias);
+			}
+		}
+		return result;
+	}
+
 	@Override
 	public X509Certificate[] getCertificateChain(String alias) {
 		try {
-			return (X509Certificate[]) getWindowsMyKeyStore().getCertificateChain(alias);
+			return (X509Certificate[]) getKeyStore().getCertificateChain(alias);
 		} catch (KeyStoreException e) {
 			throw reportAndConvert(e);
 		}
@@ -100,9 +168,14 @@ public class SwingSelectorKeyManager implements X509KeyManager {
 	public String[] getClientAliases(String keyType, Principal[] issuers) {
 		if (MscapiHookingAgent.DEBUG) { System.out.println("getClientAliases: "); }
 		try {
+			KeyStore ks = getKeyStore();
+			if (ks == null) {
+				return new String[0];
+			}
 			ArrayList<String> asList = new ArrayList<String>();
-			Enumeration<String> aliases = getWindowsMyKeyStore().aliases();
+			Enumeration<String> aliases = ks.aliases();
 			while (aliases.hasMoreElements()) {
+				// TODO filter by keyType/issuers?
 				asList.add(aliases.nextElement());
 			}
 			return asList.toArray(new String[asList.size()]);
@@ -114,22 +187,12 @@ public class SwingSelectorKeyManager implements X509KeyManager {
 	@Override
 	public PrivateKey getPrivateKey(String alias) {
 		try {
-			return (PrivateKey) getWindowsMyKeyStore().getKey(alias, null);
+			return (PrivateKey) getKeyStore().getKey(alias, null);
 		} catch (Exception e) {
 			throw reportAndConvert(e);
 		}
 	}
 
-	private RuntimeException reportAndConvert(final Exception e) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Failed", JOptionPane.ERROR_MESSAGE);
-			}
-		});
-		return new RuntimeException(e);
-	}
-	
 	@Override
 	public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
 		throw new UnsupportedOperationException("Client manager only");
@@ -140,22 +203,14 @@ public class SwingSelectorKeyManager implements X509KeyManager {
 		throw new UnsupportedOperationException("Client manager only");
 	}
 	
-	public static void main(String[] args) {
-		MscapiHookingAgent.DEBUG = true;
-		System.out.println("chose: " + new SwingSelectorKeyManager().chooseClientAlias(null, null, null));
-	}
-
-	private KeyStore getWindowsMyKeyStore() {
-		try {
-			synchronized (windowsMyLock) {
-				if (windowsMY != null) { return windowsMY; }
-			    windowsMY = KeyStore.getInstance("Windows-MY");
-			    windowsMY.load(null, null);
-			    return windowsMY;
+	protected RuntimeException reportAndConvert(final Exception e) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Failed", JOptionPane.ERROR_MESSAGE);
 			}
-		} catch (Exception e) {
-			throw reportAndConvert(e);
-		}
+		});
+		return new RuntimeException(e);
 	}
 	
 }
