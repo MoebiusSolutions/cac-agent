@@ -3,6 +3,8 @@ package com.moesol.url;
 import java.io.BufferedInputStream;
 import java.net.URL;
 
+import com.moesol.cac.key.selector.SwingSelectorKeyManager;
+
 public class DumpURL {
 
 	/**
@@ -10,7 +12,8 @@ public class DumpURL {
 	 */
 	public static void main(String[] args) {
 		try {
-			// SwingSelectorKeyManager.configureSwingKeyManagerAsDefault();
+			MscapiHookingAgent.maybeSetTrustFile();
+			SwingSelectorKeyManager.configureSwingKeyManagerAsDefault();
 
 			URL url = new URL(args[0]);
 			BufferedInputStream bis = new BufferedInputStream(url.openStream());
@@ -32,5 +35,5 @@ public class DumpURL {
 			e.printStackTrace();
 		}
 	}
-
+	
 }
