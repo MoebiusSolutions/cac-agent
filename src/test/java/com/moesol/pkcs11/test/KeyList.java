@@ -1,4 +1,4 @@
-package com.moesol.url;
+package com.moesol.pkcs11.test;
 
 import java.security.KeyStore;
 import java.util.Enumeration;
