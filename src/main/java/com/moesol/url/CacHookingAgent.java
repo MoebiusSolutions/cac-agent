@@ -11,7 +11,7 @@ public class CacHookingAgent {
 	public static String CONTEXT = "TLS";
 
 	public static void premain(String args, Instrumentation inst) throws Exception {
-		System.out.println("MSCAPI Agent hooking SSL with args: " + args);
+		System.out.println("CAC Agent hooking SSL with args: " + args);
 		Config config = Config.loadFromUserHome();
 		if (args != null) {
 			processArgs(args, config);

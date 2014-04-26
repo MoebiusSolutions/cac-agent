@@ -1,4 +1,4 @@
-# mscapi-agent
+# cac-agent
 
 This project is the source code for this [blog entry][1].
 It is useful when you need to select which certificate
@@ -20,7 +20,7 @@ this agent:
 	
 	java \
 	-Xmx512m \
-	-javaagent:"$dir"/mscapi-agent.jar=load \
+	-javaagent:"$dir"/cac-agent.jar=load \
 	-jar "$dir"/jgit-cli.jar $@
 
 Another example is setting up Eclipse to use this agent
@@ -46,7 +46,7 @@ which hooks into the internal jgit inside of Eclipse.
 	-vm
 	C:/Programs/Java/jdk1.7.0_51/jre/bin
 	-vmargs
-	-javaagent:c:/Programs/mscapi-agent.jar=load
+	-javaagent:c:/Programs/cac-agent.jar=load
 	-Dosgi.requiredJavaVersion=1.6
 	-Xms40m
 	-Xmx1024m
