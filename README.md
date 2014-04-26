@@ -53,3 +53,9 @@ which hooks into the internal jgit inside of Eclipse.
 
 
 [1]: https://www.moesol.com/roller/rhastings/entry/inject_a_cac_identity_chooser
+
+# sslVerify=false
+
+If you set [http] sslVerify=false, you will cause jgit to setup a custom SSL context which will bypass
+the SSL context that the cac-agent sets up. Most likey resulting in a SSL handshake_error.
+
