@@ -39,6 +39,7 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 		}
 	}
 	
+	@SuppressWarnings("restriction")
 	private void setUpProvider() {
 		showBusy("Initializing PKCS#11...");
 		try {
