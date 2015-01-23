@@ -91,7 +91,7 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 		String[] options = new String[] { "OK", "Cancel" };
 		int option = JOptionPane.showOptionDialog(null, panel, "CAC",
 				JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-				options, options[1]);
+				options, options[0]);
 		if (option == 0) {
 			// pressing OK button
 			return pass.getPassword();
