@@ -84,10 +84,15 @@ configure a PKCS#11 provider, this agent looks for this file:
 
 	${user.home}/.moesol/cac-agent/pkcs11.cfg
 	
-The contents of this file should setup the PKCS#11 provider. For Ubuntu, this
+The contents of this file should setup the PKCS#11 provider. For Ubuntu, using libcackey, this
 configuration works:
 
 	library=/usr/local/lib/libcackey.so
+	name="CAC Key"
+	
+For Ubuntu, using libcoolkey, this configuration works:
+
+	library=/usr/lib/pkcs11/libcoolkeypk11.so
 	name="CAC Key"
 	
 To date, we have not been able to get the NSS provider working so that you
