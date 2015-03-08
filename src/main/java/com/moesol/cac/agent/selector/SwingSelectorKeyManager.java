@@ -1,5 +1,7 @@
 package com.moesol.cac.agent.selector;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -19,7 +21,12 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509KeyManager;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import com.moesol.url.Config;
@@ -112,44 +119,60 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 	}
 
 	private String pickOnSwingThread(String[] aliases) {
-		Object[] possibilities = makeCertList(aliases);
-		Object pick = JOptionPane.showInputDialog(null,
-		                    "Choose certificate:",
-		                    "Customized Dialog",
-		                    JOptionPane.PLAIN_MESSAGE,
-		                    null,
-		                    possibilities,
-		                    possibilities[0]);
-		if (pick != null) {
-			CertDescription cert = (CertDescription) pick;
-			return cert.getAlias();
+		final JOptionPane pane = new JOptionPane();
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		
+		for (final CertDescription cd : makeCertList(aliases)) {
+			JButton jb = new JButton(cd.asHtml());
+			jb.setHorizontalAlignment(SwingConstants.LEFT);
+			jb.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					pane.setValue(cd);
+				}
+			});
+			panel.add(jb);
+		}
+		
+		pane.setMessage(panel);
+		String cancel = "Cancel";
+		pane.setOptions(new Object[] { cancel });
+		JDialog dialog = pane.createDialog("Select Certificate");
+		dialog.setVisible(true);
+		Object result = pane.getValue();
+		
+		if (result instanceof CertDescription) {
+			CertDescription cd = (CertDescription) result;
+			return cd.getAlias();
 		}
 		return null;
 	}
 	
-	private Object[] makeCertList(String[] aliases) {
+	private CertDescription[] makeCertList(String[] aliases) {
 		if (keyStore == null) {
-			return new Object[] { 
-				new CertDescription(null, "<No Identifies Found>"),
+			return new CertDescription[] { 
+				new CertDescription(null, "<No Identifies Found>", "", "", ""),
 			};
 		}
 		
-		Object[] result = new Object[aliases.length];
+		CertDescription[] result = new CertDescription[aliases.length];
 		for (int i = 0; i < aliases.length; i++) {
 			final String alias = aliases[i]; 
 			Certificate cert;
 			try {
 				cert = keyStore.getCertificate(alias);
-				X509Certificate x509 = (X509Certificate) cert; 
+				X509Certificate x509 = (X509Certificate) cert;
+				
 				String purpose = X509PurposeDecoder.decode(x509);
+				String principal = x509.getSubjectX500Principal().getName();
 				Collection<List<?>> alt = x509.getSubjectAlternativeNames();
 				String names = alt == null ? x509.getSubjectX500Principal().toString() : alt.toString();
+				String issuer = x509.getIssuerX500Principal().getName();
 				
-				String desc = String.format("%s, %s, %s", alias, purpose, names);
-				
-				result[i] = new CertDescription(alias, desc);
+				result[i] = new CertDescription(alias, principal, purpose, names, issuer);
 			} catch (ClassCastException | KeyStoreException | CertificateParsingException e1) {
-				result[i] = new CertDescription(alias, alias);
+				result[i] = new CertDescription(alias, "", "", "", "");
 			}
 		}
 		return result;

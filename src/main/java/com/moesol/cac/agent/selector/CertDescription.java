@@ -2,20 +2,46 @@ package com.moesol.cac.agent.selector;
 
 public class CertDescription {
 	private final String alias;
-	private final String desc;
+	private final String principal;
+	private final String purpose;
+	private final String altNames;
+	private final String issuer;
 	
-	public CertDescription(String alias, String desc) {
+	public CertDescription(String alias, String principal, String purpose, String altNames, String issuer) {
 		this.alias = alias;
-		this.desc = desc;
+		this.principal = principal;
+		this.purpose = purpose;
+		this.altNames = altNames;
+		this.issuer = issuer;
 	}
 
 	@Override
 	public String toString() {
-		return desc;
+		return altNames;
 	}
 
 	public String getAlias() {
 		return alias;
+	}
+	
+	public String getPurpose() {
+		return purpose;
+	}
+	
+	public String getIssuer() {
+		return issuer;
+	}
+	
+	public String asHtml() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<html>");
+		sb.append("<em><b>");
+		sb.append(alias).append(" - ").append(purpose);
+		sb.append("</b></em><p>");
+		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;principal: ").append(principal).append("<p>");
+		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;issuer: ").append(issuer);
+		sb.append("</html>");
+		return sb.toString();
 	}
 
 }
