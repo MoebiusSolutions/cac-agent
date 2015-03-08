@@ -1,10 +1,20 @@
 package com.moesol.cac.agent.selector;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.security.KeyStore;
+import java.security.KeyStore.CallbackHandlerProtection;
 import java.security.Provider;
 import java.security.Security;
 
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,20 +33,32 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 	protected KeyStore accessKeyStore() throws Exception {
 		setUpProvider();
 		
-		char[] pin = promptForPin();
-		if (pin == null) {
-			System.out.println("pin entry cancelled");
-			return null; 
-		}
-		
 		showBusy("Accessing CAC...");
 		try {
-			KeyStore ks = KeyStore.getInstance("PKCS11", provider);
-			ks.load(null, pin);
+			KeyStore ks = KeyStore.Builder
+					.newInstance("PKCS11", provider, makeCallbackHandler())
+					.getKeyStore();
+			ks.load(null, null);
 			return ks;
 		} finally {
 			hideBusy();
 		}
+	}
+	
+	private CallbackHandlerProtection makeCallbackHandler() {
+		CallbackHandler handler = new CallbackHandler() {
+			@Override
+			public void handle(Callback[] callbacks) throws IOException,
+					UnsupportedCallbackException {
+				for (Callback c : callbacks) {
+					if (c instanceof PasswordCallback) {
+						PasswordCallback pc = (PasswordCallback) c;
+						pc.setPassword(promptForPin(pc.getPrompt()));
+					}
+				}
+			}
+		};
+		return new KeyStore.CallbackHandlerProtection(handler);		
 	}
 	
 	@SuppressWarnings("restriction")
@@ -83,18 +105,34 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 		});
 	}
 
-	private char[] promptForPin() {
+	private char[] promptForPin(String prompt) {
+		JLabel label = new JLabel("Enter CAC PIN:");
+		final JPasswordField pass = new JPasswordField(10);
+
 		JPanel panel = new JPanel();
-		JLabel label = new JLabel("Enter a PIN:");
-		JPasswordField pass = new JPasswordField(10);
 		panel.add(label);
 		panel.add(pass);
-		String[] options = new String[] { "OK", "Cancel" };
-		int option = JOptionPane.showOptionDialog(null, panel, "CAC",
-				JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-				options, options[0]);
-		if (option == 0) {
-			// pressing OK button
+		
+		final JOptionPane pane = new JOptionPane();
+		pane.setMessage(panel);
+		pane.setMessageType(JOptionPane.QUESTION_MESSAGE);
+		pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+		JDialog dialog = pane.createDialog(busy, "CAC");
+		dialog.addWindowFocusListener(new WindowAdapter() {
+		    public void windowGainedFocus(WindowEvent e) {
+		    	pass.requestFocusInWindow();
+		    }
+		});
+		pass.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pane.setValue(0);
+			}
+		});
+		dialog.setVisible(true);
+		
+		Object result = pane.getValue();
+		if (new Integer(0).equals(result)) {
 			return pass.getPassword();
 		}
 		return null;
