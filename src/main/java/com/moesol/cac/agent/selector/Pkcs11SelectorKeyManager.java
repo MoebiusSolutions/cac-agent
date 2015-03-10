@@ -142,6 +142,8 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 		CacHookingAgent.DEBUG = true;
 		System.out.println("chose: "
 				+ new Pkcs11SelectorKeyManager().chooseClientAlias(null, null, null));
+		
+		System.exit(0);
 	}
 
 }
