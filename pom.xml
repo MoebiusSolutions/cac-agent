@@ -11,6 +11,10 @@
 	to use Windows-MY keystore by default, and posts a Swing
 	UI to pick which key you want to use.</description>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
