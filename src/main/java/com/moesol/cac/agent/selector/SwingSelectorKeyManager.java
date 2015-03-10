@@ -163,7 +163,7 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 			panel.add(jb);
 			buttons.add(jb);
 
-			if (cd.getAlias().equals(choosenAlias)) {
+			if (choosenAlias.equals(cd.getAlias())) {
 				preChoosen = jb;
 			}
 		}
@@ -191,6 +191,7 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 		
 		dialog.setVisible(true);
 		Object result = pane.getValue();
+		dialog.dispose();
 
 		if (result instanceof CertDescription) {
 			CertDescription cd = (CertDescription) result;

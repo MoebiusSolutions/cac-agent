@@ -15,7 +15,7 @@ public class WindowsSelectorKeyManager extends SwingSelectorKeyManager {
 	public static void main(String[] args) {
 		CacHookingAgent.DEBUG = true;
 		System.out.println("chose: " + new WindowsSelectorKeyManager().chooseClientAlias(null, null, null));
-		System.exit(0);
+		// Must not need to call System.exit(0) to shutdown or interfers with jgit.
 	}
 
 }

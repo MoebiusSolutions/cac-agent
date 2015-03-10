@@ -130,8 +130,9 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 			}
 		});
 		dialog.setVisible(true);
-		
 		Object result = pane.getValue();
+		dialog.dispose();
+		
 		if (new Integer(0).equals(result)) {
 			return pass.getPassword();
 		}
@@ -142,8 +143,7 @@ public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
 		CacHookingAgent.DEBUG = true;
 		System.out.println("chose: "
 				+ new Pkcs11SelectorKeyManager().chooseClientAlias(null, null, null));
-		
-		System.exit(0);
+		// Must not need to call System.exit(0) to shutdown or interfers with jgit.
 	}
 
 }
