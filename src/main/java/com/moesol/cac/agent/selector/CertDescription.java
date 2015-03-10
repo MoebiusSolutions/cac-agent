@@ -32,11 +32,18 @@ public class CertDescription {
 		return issuer;
 	}
 	
+	String displayAlias() {
+		if (this.alias == null) {
+			return "&lt;No Identifies Found>";			
+		}
+		return this.alias;
+	}
+	
 	public String asHtml() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
 		sb.append("<em><b>");
-		sb.append(alias).append(" - ").append(purpose);
+		sb.append(displayAlias()).append(" - ").append(purpose);
 		sb.append("</b></em><p>");
 		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;principal: ").append(principal).append("<p>");
 		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;issuer: ").append(issuer);
