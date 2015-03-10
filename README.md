@@ -22,7 +22,20 @@ this agent:
 	-Xmx512m \
 	-javaagent:"$dir"/cac-agent.jar=load \
 	-jar "$dir"/jgit-cli.jar $@
+	
+With the above script in place, you can clone a remote repository that
+requires a CAC with
 
+    jgit.sh clone <url>
+
+When you are ready to push you can use
+
+    jgit.sh push [repository]
+    
+Fetching updates
+
+    jgit.sh fetch [repository]
+    
 Another example is setting up Eclipse to use this agent
 which hooks into the internal jgit inside of Eclipse.
 
