@@ -195,6 +195,10 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 
 		if (result instanceof CertDescription) {
 			CertDescription cd = (CertDescription) result;
+			if (cd.getAlias() == null) {
+				return null;
+			}
+
 			prefs.put("choosenAlias", cd.getAlias());
 			try {
 				prefs.flush();
