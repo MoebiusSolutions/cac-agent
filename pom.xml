@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>usn.otm</groupId>
 	<artifactId>cac-agent</artifactId>
-	<version>1.3</version>
+	<version>1.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>cac-agent</name>
 	<description>Builds a javaagent jar that hooks SSL in Java
