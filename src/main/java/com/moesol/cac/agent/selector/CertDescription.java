@@ -1,5 +1,10 @@
 package com.moesol.cac.agent.selector;
 
+import java.io.StringWriter;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+
 public class CertDescription {
 	private final String alias;
 	private final String principal;
@@ -34,21 +39,45 @@ public class CertDescription {
 	
 	String displayAlias() {
 		if (this.alias == null) {
-			return "&lt;No Identifies Found>";			
+			return "<No Identifies Found>";			
 		}
 		return this.alias;
 	}
 	
 	public String asHtml() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<html>");
-		sb.append("<em><b>");
-		sb.append(displayAlias()).append(" - ").append(purpose);
-		sb.append("</b></em><p>");
-		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;principal: ").append(principal).append("<p>");
-		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;issuer: ").append(issuer);
-		sb.append("</html>");
-		return sb.toString();
-	}
+		try {
+			StringWriter sw = new StringWriter();
+			XMLOutputFactory xof = XMLOutputFactory.newFactory();
+			XMLStreamWriter xtw = xof.createXMLStreamWriter(sw);
+			xtw.writeStartElement("html");
 
+			xtw.writeStartElement("p");
+			xtw.writeStartElement("em");
+			xtw.writeCharacters(displayAlias() + " - " + purpose);
+			xtw.writeEndElement();
+			xtw.writeEndElement();
+			
+			xtw.writeStartElement("p");
+			for (int i = 0; i < 4; i++) {
+				xtw.writeEntityRef("nbsp");
+			}
+			xtw.writeCharacters(principal);
+			xtw.writeEndElement();
+			
+			xtw.writeStartElement("p");
+			for (int i = 0; i < 4; i++) {
+				xtw.writeEntityRef("nbsp");
+			}
+			xtw.writeCharacters(issuer);
+			xtw.writeEndElement();
+
+			xtw.writeEndElement();
+			xtw.close();
+			
+			return sw.toString();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 }
