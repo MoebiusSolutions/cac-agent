@@ -20,13 +20,13 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509KeyManager;
 
-import com.moesol.cac.agent.selector.SwingIdentityKeyChooser.IdentityKeyListProvider;
 import com.moesol.url.CacHookingAgent;
 import com.moesol.url.Config;
 
 /**
  * When installed as the default key manager, this class prompts the user as
- * needed to choose a key.
+ * needed to choose a key. The default chooser uses Swing, but a Tty base
+ * chooser can be set as a property.
  * 
  * @author hastings
  */
@@ -34,9 +34,12 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 	private String choosenAlias = null;
 	private final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
-	private final SwingIdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
+	private IdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
 
 	public AbstractSelectorKeyManager() {
+	}
+	public void setIdentityKeyChooser(IdentityKeyChooser chooser) {
+		this.chooser = chooser;
 	}
 
 	/**

@@ -44,6 +44,10 @@ public class CertDescription {
 		return this.alias;
 	}
 	
+	public String asTty()  {
+		return String.format("%s - %s%n  %s%n  %s", displayAlias(), purpose, principal, issuer);
+	}
+	
 	public String asHtml() {
 		try {
 			StringWriter sw = new StringWriter();

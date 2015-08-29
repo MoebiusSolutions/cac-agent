@@ -65,7 +65,6 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	private void setUpProvider() {
 		showBusy("Initializing PKCS#11...");
 		try {
-			System.out.println("setUp pkcs11 start");
 			String home = System.getProperty("user.home");
 			String configName = home + "/" + CacHookingAgent.CAC_AGENT_DIR + "/pkcs11.cfg";
 			File configFile = new File(configName);
@@ -140,10 +139,13 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	}
 
 	public static void main(String[] args) {
-		CacHookingAgent.DEBUG = true;
+//		CacHookingAgent.DEBUG = true;
+		Pkcs11SelectorKeyManager selector = new Pkcs11SelectorKeyManager();
+		selector.setIdentityKeyChooser(new TtyIdentityKeyChooser(selector));
+		
 		System.out.println("chose: "
-				+ new Pkcs11SelectorKeyManager().chooseClientAlias(null, null, null));
-		// Must not need to call System.exit(0) to shutdown or interfers with jgit.
+				+ selector.chooseClientAlias(null, null, null));
+		// Must not need to call System.exit(0) to shutdown or interferes with jgit.
 	}
 
 }

@@ -23,11 +23,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-public class SwingIdentityKeyChooser {
-	public static interface IdentityKeyListProvider {
-		CertDescription[] makeCertList(String[] aliases);
-	}
-	
+public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	private final IdentityKeyListProvider provider;
 	private String choosenAlias;
 	
