@@ -1,9 +1,5 @@
 package com.moesol.cac.agent.selector;
 
-import java.awt.AWTKeyStroke;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -17,27 +13,14 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509KeyManager;
-import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
+import com.moesol.cac.agent.selector.SwingIdentityKeyChooser.IdentityKeyListProvider;
 import com.moesol.url.CacHookingAgent;
 import com.moesol.url.Config;
 
@@ -47,10 +30,11 @@ import com.moesol.url.Config;
  * 
  * @author hastings
  */
-public abstract class SwingSelectorKeyManager implements X509KeyManager {
+public abstract class SwingSelectorKeyManager implements X509KeyManager, IdentityKeyListProvider {
 	private String choosenAlias = null;
 	private final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
+	private final SwingIdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
 
 	public SwingSelectorKeyManager() {
 	}
@@ -126,12 +110,7 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 
 		try {
 			final String[] aliases = getClientAliases(null, issuers);
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					choosenAlias = pickOnSwingThread(aliases);
-				}
-			});
+			choosenAlias = chooser.chooseFromAliases(aliases);
 		} catch (Exception e) {
 			throw reportAndConvert(e);
 		}
@@ -141,94 +120,7 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 		return choosenAlias;
 	}
 
-	private String pickOnSwingThread(String[] aliases) {
-		Preferences prefs = Preferences.userNodeForPackage(getClass());
-		String choosenAlias = prefs.get("choosenAlias", "");
-
-		final JOptionPane pane = new JOptionPane();
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-		JButton preChoosen = null;
-		List<JButton> buttons = new ArrayList<JButton>();
-		for (final CertDescription cd : makeCertList(aliases)) {
-			JButton jb = new JButton(cd.asHtml());
-			jb.setHorizontalAlignment(SwingConstants.LEFT);
-			jb.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					pane.setValue(cd);
-				}
-			});
-			panel.add(jb);
-			buttons.add(jb);
-
-			if (choosenAlias.equals(cd.getAlias())) {
-				preChoosen = jb;
-			}
-		}
-
-		pane.setMessage(panel);
-		String cancel = "Cancel";
-		pane.setOptions(new Object[] { cancel });
-
-		final JDialog dialog = pane.createDialog("Select Certificate");
-		bindArrowKeys(dialog);
-		panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("ENTER"), "selectKey");
-		panel.getActionMap().put("selectKey", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("selectKey");
-				if (dialog.getFocusOwner() instanceof JButton) {
-					JButton jb = (JButton) dialog.getFocusOwner();
-					jb.doClick();
-				}
-			}
-		});
-		if (preChoosen != null) {
-			preChoosen.requestFocusInWindow();
-		}
-		
-		dialog.setVisible(true);
-		Object result = pane.getValue();
-		dialog.dispose();
-
-		if (result instanceof CertDescription) {
-			CertDescription cd = (CertDescription) result;
-			if (cd.getAlias() == null) {
-				return null;
-			}
-
-			prefs.put("choosenAlias", cd.getAlias());
-			try {
-				prefs.flush();
-			} catch (BackingStoreException e1) {
-				e1.printStackTrace();
-			}
-			return cd.getAlias();
-		}
-		return null;
-	}
-
-	private void bindArrowKeys(JDialog dialog) {
-		{
-			Set<AWTKeyStroke> forwardKeys = dialog.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
-			Set<AWTKeyStroke> newForwardKeys = new HashSet<>(forwardKeys);
-			newForwardKeys.add(KeyStroke.getKeyStroke("DOWN"));
-			newForwardKeys.add(KeyStroke.getKeyStroke("RIGHT"));
-			dialog.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
-		}
-
-		{
-			Set<AWTKeyStroke> backwardKeys = dialog.getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS);
-			Set<AWTKeyStroke> newBackwardKeys = new HashSet<>(backwardKeys);
-			newBackwardKeys.add(KeyStroke.getKeyStroke("UP"));
-			newBackwardKeys.add(KeyStroke.getKeyStroke("LEFT"));
-			dialog.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, newBackwardKeys);
-		}
-	}
-
-	private CertDescription[] makeCertList(String[] aliases) {
+	public CertDescription[] makeCertList(String[] aliases) {
 		if (keyStore == null) {
 			return new CertDescription[] { new CertDescription(null, "", "", "", ""), };
 		}
@@ -305,13 +197,8 @@ public abstract class SwingSelectorKeyManager implements X509KeyManager {
 		throw new UnsupportedOperationException("Client manager only");
 	}
 
-	protected RuntimeException reportAndConvert(final Exception e) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Failed", JOptionPane.ERROR_MESSAGE);
-			}
-		});
+	public RuntimeException reportAndConvert(final Exception e) {
+		chooser.reportException(e);
 		return new RuntimeException(e);
 	}
 
