@@ -4,7 +4,7 @@ import java.security.KeyStore;
 
 import com.moesol.url.CacHookingAgent;
 
-public class WindowsSelectorKeyManager extends SwingSelectorKeyManager {
+public class WindowsSelectorKeyManager extends AbstractSelectorKeyManager {
 	
 	protected KeyStore accessKeyStore() throws Exception {
 		KeyStore result = KeyStore.getInstance("Windows-MY");

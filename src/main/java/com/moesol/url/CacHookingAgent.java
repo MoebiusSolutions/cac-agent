@@ -3,7 +3,7 @@ package com.moesol.url;
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 
-import com.moesol.cac.agent.selector.SwingSelectorKeyManager;
+import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
 public class CacHookingAgent {
 	public static final String CAC_AGENT_DIR = ".moesol/cac-agent";
@@ -18,7 +18,7 @@ public class CacHookingAgent {
 		}
 		maybeSetTrustSystemProperties(config);
 		maybeSetTrustFile();
-		SwingSelectorKeyManager.configureSwingKeyManagerAsDefault();
+		AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault();
 	}
 	
 	public static void maybeSetTrustFile() {

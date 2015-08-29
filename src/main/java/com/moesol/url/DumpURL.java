@@ -3,7 +3,7 @@ package com.moesol.url;
 import java.io.BufferedInputStream;
 import java.net.URL;
 
-import com.moesol.cac.agent.selector.SwingSelectorKeyManager;
+import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
 public class DumpURL {
 
@@ -13,7 +13,7 @@ public class DumpURL {
 	public static void main(String[] args) {
 		try {
 			CacHookingAgent.maybeSetTrustFile();
-			SwingSelectorKeyManager.configureSwingKeyManagerAsDefault();
+			AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault();
 
 			URL url = new URL(args[0]);
 			BufferedInputStream bis = new BufferedInputStream(url.openStream());

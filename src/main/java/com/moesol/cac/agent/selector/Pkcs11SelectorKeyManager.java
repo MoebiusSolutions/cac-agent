@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
 
 import com.moesol.url.CacHookingAgent;
 
-public class Pkcs11SelectorKeyManager extends SwingSelectorKeyManager {
+public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 
 	private Provider provider;
 	private JDialog busy;

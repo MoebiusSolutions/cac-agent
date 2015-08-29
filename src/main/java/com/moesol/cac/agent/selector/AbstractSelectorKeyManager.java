@@ -30,13 +30,13 @@ import com.moesol.url.Config;
  * 
  * @author hastings
  */
-public abstract class SwingSelectorKeyManager implements X509KeyManager, IdentityKeyListProvider {
+public abstract class AbstractSelectorKeyManager implements X509KeyManager, IdentityKeyListProvider {
 	private String choosenAlias = null;
 	private final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
 	private final SwingIdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
 
-	public SwingSelectorKeyManager() {
+	public AbstractSelectorKeyManager() {
 	}
 
 	/**
