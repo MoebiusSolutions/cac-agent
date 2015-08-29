@@ -4,6 +4,8 @@ import java.awt.AWTKeyStroke;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,8 +19,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -26,6 +30,7 @@ import javax.swing.SwingUtilities;
 public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	private final IdentityKeyListProvider provider;
 	private String choosenAlias;
+	private JDialog busy;
 	
 	public SwingIdentityKeyChooser(IdentityKeyListProvider provider) {
 		this.provider = provider;
@@ -50,6 +55,63 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		});
 	}
 	
+	public void showBusy(final String message) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
+				busy = pane.createDialog("CAC");
+				busy.setModal(false);
+				busy.setVisible(true);
+			}
+		});
+	}
+
+	public void hideBusy() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				busy.setVisible(false);
+				busy.dispose();
+				busy = null;
+			}
+		});
+	}
+
+	public char[] promptForPin(String prompt) {
+		JLabel label = new JLabel("Enter CAC PIN:");
+		final JPasswordField pass = new JPasswordField(10);
+
+		JPanel panel = new JPanel();
+		panel.add(label);
+		panel.add(pass);
+		
+		final JOptionPane pane = new JOptionPane();
+		pane.setMessage(panel);
+		pane.setMessageType(JOptionPane.QUESTION_MESSAGE);
+		pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+		JDialog dialog = pane.createDialog(busy, "CAC");
+		dialog.addWindowFocusListener(new WindowAdapter() {
+		    public void windowGainedFocus(WindowEvent e) {
+		    	pass.requestFocusInWindow();
+		    }
+		});
+		pass.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pane.setValue(0);
+			}
+		});
+		dialog.setVisible(true);
+		Object result = pane.getValue();
+		dialog.dispose();
+		
+		if (new Integer(0).equals(result)) {
+			return pass.getPassword();
+		}
+		return null;
+	}
+
 	private String pickOnSwingThread(String[] aliases) {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String choosenAlias = prefs.get("choosenAlias", "");

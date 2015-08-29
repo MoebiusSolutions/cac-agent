@@ -1,5 +1,6 @@
 package com.moesol.cac.agent.selector;
 
+import java.io.Console;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Scanner;
 import java.util.prefs.Preferences;
@@ -48,6 +49,25 @@ public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 
 	public void reportException(final Exception e) {
 		System.err.printf("Failed: %s%n", e.getLocalizedMessage());
+	}
+
+	@Override
+	public void showBusy(String message) {
+		System.out.println(message);
+	}
+
+	@Override
+	public void hideBusy() {
+	}
+
+	@Override
+	public char[] promptForPin(String prompt) {
+		Console cons = System.console();
+		if (cons == null) {
+			System.err.println("No console, cannot input PIN");
+			return new char[0];
+		}
+		return cons.readPassword("PIN: ");
 	}
 	
 }

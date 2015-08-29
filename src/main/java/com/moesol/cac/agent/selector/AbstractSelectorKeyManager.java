@@ -34,7 +34,7 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 	private String choosenAlias = null;
 	private final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
-	private IdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
+	protected IdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
 
 	public AbstractSelectorKeyManager() {
 	}
