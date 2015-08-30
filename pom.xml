@@ -14,6 +14,12 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+        <scm>
+                <connection>scm:git:https://github.com/MoebiusSolutions/cac-agent.git</connection>
+                <developerConnection>scm:git:https://github.com/MoebiusSolutions/cac-agent.git</developerConnection>
+                <tag>HEAD</tag>
+        </scm>
 	
 	<dependencies>
 		<dependency>
