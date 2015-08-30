@@ -44,15 +44,16 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 
 	/**
 	 * Injects this manager into the SSLContext.
+	 * @param config 
 	 * 
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyManagementException
 	 */
-	public static void configureSwingKeyManagerAsDefault() throws NoSuchAlgorithmException, KeyManagementException {
+	public static void configureSwingKeyManagerAsDefault(Config config) throws NoSuchAlgorithmException, KeyManagementException {
 		if (CacHookingAgent.DEBUG) {
 			System.out.println("Context: " + CacHookingAgent.CONTEXT);
 		}
-		KeyManager[] kmgrs = makeKeyManagers();
+		KeyManager[] kmgrs = makeKeyManagers(config);
 		SSLContext sslContext = SSLContext.getInstance(CacHookingAgent.CONTEXT);
 		sslContext.init(kmgrs, null, new java.security.SecureRandom());
 		SSLContext.setDefault(sslContext);
@@ -60,14 +61,18 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 	}
 
-	private static KeyManager[] makeKeyManagers() {
+	private static KeyManager[] makeKeyManagers(Config config) {
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.startsWith("win")) {
 			System.out.println("Windows key manager");
 			return new KeyManager[] { new WindowsSelectorKeyManager() };
 		} else {
 			System.out.println("Linux key manager");
-			return new KeyManager[] { new Pkcs11SelectorKeyManager() };
+			Pkcs11SelectorKeyManager keyManager = new Pkcs11SelectorKeyManager();
+			if (config.isTty()) {
+				keyManager.setIdentityKeyChooser(new TtyIdentityKeyChooser(keyManager));
+			}
+			return new KeyManager[] { keyManager };
 		}
 	}
 

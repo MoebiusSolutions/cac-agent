@@ -13,7 +13,8 @@ public class DumpURL {
 	public static void main(String[] args) {
 		try {
 			CacHookingAgent.maybeSetTrustFile();
-			AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault();
+			Config config = new Config();
+			AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault(config);
 
 			URL url = new URL(args[0]);
 			BufferedInputStream bis = new BufferedInputStream(url.openStream());

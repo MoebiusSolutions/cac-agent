@@ -9,6 +9,14 @@ import java.util.Properties;
 public class Config {
 	private boolean useWindowsTrust = false;
 	private String defaultCertificateName = null;
+	private boolean tty = false;
+	
+	public boolean isTty() {
+		return tty ;
+	}
+	public void setTty(boolean b) {
+		tty = b;
+	}
 	
 	public boolean isUseWindowsTrust() {
 		return useWindowsTrust;

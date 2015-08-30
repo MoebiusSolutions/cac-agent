@@ -18,7 +18,7 @@ public class CacHookingAgent {
 		}
 		maybeSetTrustSystemProperties(config);
 		maybeSetTrustFile();
-		AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault();
+		AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault(config);
 	}
 	
 	public static void maybeSetTrustFile() {
@@ -43,6 +43,9 @@ public class CacHookingAgent {
 			if (s.equals("debug")) {
 				DEBUG = true;
 			}
+			if (s.equals("tty")) {
+				config.setTty(true);
+			}
 			if (s.startsWith("context=")) {
 				CONTEXT = s.replace("context=", "");
 			}
@@ -56,7 +59,10 @@ public class CacHookingAgent {
 	}
 
 	private static void showHelp() {
-		System.out.println("Options: debug | context={c} | | windowsTrust | help");
-		System.out.println("{c} -- SSL, SSLv2, SSLv3, TLS, TLSv1, TLSv1.1, TLSv1.2"); 
+		System.out.println("Options: debug | context={c} | tty | windowsTrust | help");
+		System.out.println("debug -- Print debug output");
+		System.out.println("context -- {c} one of SSL, SSLv2, SSLv3, TLS, TLSv1, TLSv1.1, TLSv1.2");
+		System.out.println("tty -- use TTY prompts instead of Swing prompts");
+		System.out.println("windowsTrust -- Use Windows Trust store");
 	}
 }
