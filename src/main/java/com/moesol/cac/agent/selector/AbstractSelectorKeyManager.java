@@ -63,17 +63,18 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 
 	private static KeyManager[] makeKeyManagers(Config config) {
 		String os = System.getProperty("os.name").toLowerCase();
+		AbstractSelectorKeyManager keyManager;
 		if (os.startsWith("win")) {
 			System.out.println("Windows key manager");
-			return new KeyManager[] { new WindowsSelectorKeyManager() };
+			keyManager =  new WindowsSelectorKeyManager();
 		} else {
 			System.out.println("Linux key manager");
-			Pkcs11SelectorKeyManager keyManager = new Pkcs11SelectorKeyManager();
-			if (config.isTty()) {
-				keyManager.setIdentityKeyChooser(new TtyIdentityKeyChooser(keyManager));
-			}
-			return new KeyManager[] { keyManager };
+			keyManager = new Pkcs11SelectorKeyManager();
 		}
+		if (config.isTty()) {
+			keyManager.setIdentityKeyChooser(new TtyIdentityKeyChooser(keyManager));
+		}
+		return new KeyManager[] { keyManager };
 	}
 
 	private KeyStore getKeyStore() {
