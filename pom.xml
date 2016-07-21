@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>usn.otm</groupId>
 	<artifactId>cac-agent</artifactId>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.5</version>
 	<packaging>jar</packaging>
 	<name>cac-agent</name>
 	<description>Builds a javaagent jar that hooks SSL in Java
@@ -17,7 +17,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/MoebiusSolutions/cac-agent.git</connection>
 		<developerConnection>scm:git:https://github.com/MoebiusSolutions/cac-agent.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>cac-agent-1.5</tag>
 	</scm>
 
 	<dependencies>
