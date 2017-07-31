@@ -61,7 +61,7 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 	}
 
-	private static KeyManager[] makeKeyManagers(Config config) {
+	public static KeyManager[] makeKeyManagers(Config config) {
 		String os = System.getProperty("os.name").toLowerCase();
 		AbstractSelectorKeyManager keyManager;
 		if (os.startsWith("win")) {

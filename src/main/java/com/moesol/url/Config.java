@@ -51,6 +51,7 @@ public class Config {
 			Config result = new Config();
 			result.setDefaultCertificateName(p.getProperty("default.cert.name"));
 			result.setUseWindowsTrust(Boolean.parseBoolean(p.getProperty("use.windows.trust")));
+			result.setTty(Boolean.parseBoolean(p.getProperty("use.tty")));
 			return result;
 		}
 	}
