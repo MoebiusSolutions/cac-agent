@@ -5,10 +5,33 @@ It is useful when you need to select which certificate
 you want to pass as your client identity when using
 SSL. By default Java passes the first certificate in the
 store. However, with CAC Cards and the Windows-KEY store
-the first certificate is often not the certifcate you
+the first certificate is often not the certificate you
 want to use. This agent hooks SSL and presents a Swing
 Dialog allowing you to pick which certificate you want
 to use.
+
+## JGit Command Line
+
+JGit no longer uses the JDK classes for HTTPS access.
+In order to make using CAC with jgit-cli easy, this
+project has a tiny main program that re-configures
+JGit to use the JDK classes again and then just
+delegates to jgit-cli.
+
+Also, on Windows we default to using the Windows
+Keystore and Windows Truststore. Therefore, if your
+CAC is already working for `Internet Explorer`
+then there is no further setup. 
+ 
+Thus on Windows to fetch from a CAC protected repository
+you just need to setup Windows to work with your CAC and then
+run:
+
+```
+java -jar cac-agent-1.6-SNAPSHOT-jar-with-dependencies.jar fetch origin
+```
+
+## Using the Agent for Older JGIT Releases
 
 The startup code for jgit.sh is a good example of using
 this agent:
@@ -109,8 +132,8 @@ two files
 2. ${user.home}/.moesol/cac-agent/truststore.jks
 
 There are example files for both of these in the project root directory. If you
-upgrade Java cac-agent should continue to work since the CAC configuration
-information is stored in your home directory.
+upgrade `Java` cac-agent should continue to work since the CAC configuration
+information is stored in your home directory not not in the `Java` directories.
 
 # sslVerify=false
 

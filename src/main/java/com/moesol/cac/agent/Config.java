@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Config {
-	private boolean useWindowsTrust = false;
+	private boolean useWindowsTrust = true;
 	private String defaultCertificateName = null;
 	private boolean tty = false;
 
@@ -51,7 +51,7 @@ public class Config {
 			p.load(fis);
 			Config result = new Config();
 			result.setDefaultCertificateName(p.getProperty("default.cert.name"));
-			result.setUseWindowsTrust(Boolean.parseBoolean(p.getProperty("use.windows.trust")));
+			result.setUseWindowsTrust(Boolean.parseBoolean(p.getProperty("use.windows.trust", "true")));
 			result.setTty(Boolean.parseBoolean(p.getProperty("use.tty")));
 			return result;
 		}
