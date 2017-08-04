@@ -13,7 +13,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.JOptionPane;
 
-import com.moesol.url.CacHookingAgent;
+import com.moesol.cac.agent.CacHookingAgent;
 
 public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 

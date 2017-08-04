@@ -20,9 +20,9 @@ import org.eclipse.jgit.transport.http.HttpConnection;
 import org.eclipse.jgit.transport.http.apache.HttpClientConnection;
 import org.eclipse.jgit.transport.http.apache.HttpClientConnectionFactory;
 
+import com.moesol.cac.agent.CacHookingAgent;
+import com.moesol.cac.agent.Config;
 import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
-import com.moesol.url.CacHookingAgent;
-import com.moesol.url.Config;
 
 public class HookedHttpClientConnectionFactory extends HttpClientConnectionFactory {
 

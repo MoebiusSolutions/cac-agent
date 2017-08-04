@@ -1,4 +1,4 @@
-package com.moesol.url;
+package com.moesol.cac.agent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,14 +10,14 @@ public class Config {
 	private boolean useWindowsTrust = false;
 	private String defaultCertificateName = null;
 	private boolean tty = false;
-	
+
 	public boolean isTty() {
 		return tty ;
 	}
 	public void setTty(boolean b) {
 		tty = b;
 	}
-	
+
 	public boolean isUseWindowsTrust() {
 		return useWindowsTrust;
 	}
@@ -30,7 +30,7 @@ public class Config {
 	public void setDefaultCertificateName(String defaultCertificateName) {
 		this.defaultCertificateName = defaultCertificateName;
 	}
-	
+
 	public static Config loadFromUserHome() {
 		String userHome = System.getProperty("user.home");
 		if (userHome == null) { return new Config(); }
@@ -42,9 +42,10 @@ public class Config {
 		}
 	}
 	private static Config doLoadProperties(String userHome) throws IOException, FileNotFoundException {
-		File file = new File(userHome, CacHookingAgent.CAC_AGENT_DIR + "/properties");
+		File file = new File(userHome, CacHookingAgent.CAC_AGENT_DIR + "/agent.properties");
+		System.out.printf("Loading properties from %s%n", file);
 		if (!file.exists()) { return new Config(); }
-		
+
 		try (FileInputStream fis = new FileInputStream(file)) {
 			Properties p = new Properties();
 			p.load(fis);

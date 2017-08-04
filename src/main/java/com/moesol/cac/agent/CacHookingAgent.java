@@ -1,4 +1,4 @@
-package com.moesol.url;
+package com.moesol.cac.agent;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
@@ -20,7 +20,7 @@ public class CacHookingAgent {
 		maybeSetTrustFile();
 		AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault(config);
 	}
-	
+
 	public static void maybeSetTrustFile() {
 		File trustStoreFile = new File(System.getProperty("user.home"), CAC_AGENT_DIR + "/truststore.jks");
 		if (trustStoreFile.canRead()) {
@@ -32,6 +32,7 @@ public class CacHookingAgent {
 
 	private static void maybeSetTrustSystemProperties(Config config) {
 		if (config.isUseWindowsTrust()) {
+			System.out.println("Using trustore Windows-ROOT");
 			System.setProperty("javax.net.ssl.trustStoreType", "Windows-ROOT");
 			System.setProperty("javax.net.ssl.trustStore", "NONE");
 		}

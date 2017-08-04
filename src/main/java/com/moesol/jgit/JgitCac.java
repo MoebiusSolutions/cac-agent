@@ -4,7 +4,7 @@ import org.eclipse.jgit.pgm.Main;
 import org.eclipse.jgit.transport.HttpTransport;
 import org.eclipse.jgit.transport.http.JDKHttpConnectionFactory;
 
-import com.moesol.url.CacHookingAgent;
+import com.moesol.cac.agent.CacHookingAgent;
 
 public class JgitCac extends Main {
 	

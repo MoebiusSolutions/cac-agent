@@ -20,8 +20,8 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509KeyManager;
 
-import com.moesol.url.CacHookingAgent;
-import com.moesol.url.Config;
+import com.moesol.cac.agent.CacHookingAgent;
+import com.moesol.cac.agent.Config;
 
 /**
  * When installed as the default key manager, this class prompts the user as

@@ -3,6 +3,8 @@ package com.moesol.url;
 import java.io.BufferedInputStream;
 import java.net.URL;
 
+import com.moesol.cac.agent.CacHookingAgent;
+import com.moesol.cac.agent.Config;
 import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
 public class DumpURL {
