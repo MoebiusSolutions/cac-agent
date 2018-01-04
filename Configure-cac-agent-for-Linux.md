@@ -8,8 +8,7 @@ Configure cac-agent for Linux
 Install CAC Drivers
 ----------------
 
-Install your appropriate CAC middleware. [Setting Up CAC Smart Card in Ubuntu 16](Setting-Up-CAC-Smart-Card-in-Ubuntu-16.md)
-provies a nice guide, but you can skip the browser setup sections.
+Install your appropriate CAC middleware. You can use [Setting Up PKCS11 CAC Drivers in Ubuntu 16](Setting-Up-PKCS11-CAC-Drivers-in-Ubuntu-16.md) as a guide, but you can skip the browser setup sections.
 
 
 Configure cac-agent Middleware

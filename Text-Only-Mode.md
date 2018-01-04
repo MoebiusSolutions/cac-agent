@@ -1,7 +1,7 @@
 Text-Only Mode
 ================
 
-It can be convenient to use the termianl instead of a graphical popup for CAC interaction.
+It can be convenient to use the terminal instead of a graphical popup for CAC interaction.
 
 To enable this, simply create/edit this file:
 

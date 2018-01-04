@@ -7,12 +7,12 @@ Compile the cac-agent executable jar (requires that you have Maven and Java inst
 	cd cac-agent
 	mvn install
 
-Now you have:
+Now you have (under the ```target``` directory):
 
-* An library that contains cac support:
-	* Windows: ```target\cac-agent-.jar```
-	* Linux: ```target/cac-agent-.jar```
+* A library that contains cac support:
+
+		cac-agent-.jar```
 
 * An executable jar that contains jgit plus cac support:
-	* Windows: ```target\cac-agent-...-with-dependencies.jar```
-	* Linux: ```target/cac-agent-...-with-dependencies.jar```
+
+		cac-agent-...-with-dependencies.jar```
