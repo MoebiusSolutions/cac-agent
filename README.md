@@ -1,4 +1,5 @@
-# cac-agent
+cac-agent (CAC Integration with Java and Git)
+================
 
 This project is the source code for this [blog entry][1].
 It is useful when you need to select which certificate
@@ -10,135 +11,30 @@ want to use. This agent hooks SSL and presents a Swing
 Dialog allowing you to pick which certificate you want
 to use.
 
-## JGit Command Line
+* ```cac-agent-...jar``` is a library that can be used with arbitrary Java applications.
 
-JGit no longer uses the JDK classes for HTTPS access.
-In order to make using CAC with jgit-cli easy, this
-project has a tiny main program that re-configures
-JGit to use the JDK classes again and then just
-delegates to jgit-cli.
-
-Also, on Windows we default to using the Windows
-Keystore and Windows Truststore. Therefore, if your
-CAC is already working for `Internet Explorer`
-then there is no further setup. 
- 
-Thus on Windows to fetch from a CAC protected repository
-you just need to setup Windows to work with your CAC and then
-run:
-
-```
-java -jar cac-agent-1.6-SNAPSHOT-jar-with-dependencies.jar fetch origin
-```
-
-## Using the Agent for Older JGIT Releases
-
-The startup code for jgit.sh is a good example of using
-this agent:
-
-	#!/bin/sh
-	# Git bash
-	
-	dir="$(cd "$(dirname "$0")" && pwd -W)"
-	
-	java \
-	-Xmx512m \
-	-javaagent:"$dir"/cac-agent.jar=load \
-	-jar "$dir"/jgit-cli.jar $@
-	
-With the above script in place, you can clone a remote repository that
-requires a CAC with
-
-    jgit.sh clone <url>
-
-When you are ready to push you can use
-
-    jgit.sh push [repository]
-    
-Fetching updates
-
-    jgit.sh fetch [repository]
-    
-Another example is setting up Eclipse to use this agent
-which hooks into the internal jgit inside of Eclipse.
-
-	-startup
-	plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar
-	--launcher.library
-	plugins/org.eclipse.equinox.launcher.win32.win32.x86_64_1.1.200.v20130521-0416
-	-product
-	org.eclipse.epp.package.standard.product
-	--launcher.defaultAction
-	openFile
-	--launcher.XXMaxPermSize
-	256M
-	-showsplash
-	org.eclipse.platform
-	--launcher.XXMaxPermSize
-	256m
-	--launcher.defaultAction
-	openFile
-	--launcher.appendVmargs
-	-vm
-	C:/Programs/Java/jdk1.7.0_51/jre/bin
-	-vmargs
-	-javaagent:c:/Programs/cac-agent.jar=load
-	-Dosgi.requiredJavaVersion=1.6
-	-Xms40m
-	-Xmx1024m
+* ```cac-agent-...-with-dependencies.jar``` executable jar that contains both jgit and cac-agent.
 
 
-# Windows Key/Trust Store Integration
+Quick Start
+----------------
 
-On Windows this agent sets up the Windows-MY keystore so that Java can
-integration with Windows. If you have your CAC working with IE or Chrome then
-Java will be able to share this configuration. You can also configure to use
-the Windows trust store.
+Setup
 
-# Linux PKCS#11 Integration and JKS Based Trust Store
+* [Compile cac-agent](Compile-cac-agent.md)
+* [Create the cac-agent Truststore](Create-the-cac-agent-Truststore.md)
+* Configure
+	* [Configure cac-agent for Linux](Configure-cac-agent-for-Linux.md)
+	* [Configure cac-agent for Windows](Configure-cac-agent-for-Windows.md)
 
-On Linux this agent sets up a PKCS#11 provider. For Ubuntu, this [cac help document][2]
-was a pretty good guide for getting CAC setup and working. Apparently RHEL,
-includes a working PKCS#11 libcackey.so file out of the box so the above
-information may not be needed on RHEL.
+Use
 
-Rather than require you to modify your Java installation to statically
-configure a PKCS#11 provider, this agent looks for this file:
+* [Using cac-agent with Git](Using-cac-agent-with-Git.md)
 
-	${user.home}/.moesol/cac-agent/pkcs11.cfg
-	
-The contents of this file should setup the PKCS#11 provider. For Ubuntu, using libcackey, this
-configuration works:
 
-	library=/usr/local/lib/libcackey.so
-	name="CAC Key"
-	
-For Ubuntu, using libcoolkey, this configuration works:
+Other Notes
+----------------
 
-	library=/usr/lib/pkcs11/libcoolkeypk11.so
-	name="CAC Key"
-	
-To date, we have not been able to get the NSS provider working so that you
-could have Java share the Firefox or Chrome key/trustsore. Instead, this
-agent looks for this file:
-
-	${user.home}/.moesol/cac-agent/truststore.jks
-	
-If it exists, it sets `javax.net.ssl.trustStore` to point at the file.
-The net result is that to configure cac-agent on Ubuntu you need to create
-two files
-
-1. ${user.home}/.moesol/cac-agent/pkcs11.cfg
-2. ${user.home}/.moesol/cac-agent/truststore.jks
-
-There are example files for both of these in the project root directory. If you
-upgrade `Java` cac-agent should continue to work since the CAC configuration
-information is stored in your home directory not not in the `Java` directories.
-
-# sslVerify=false
-
-If you set [http] sslVerify=false, you will cause jgit to setup a custom SSL context which will bypass
-the SSL context that the cac-agent sets up. Most likey resulting in a SSL handshake_error.
-
-[1]: https://www.moesol.com/roller/rhastings/entry/inject_a_cac_identity_chooser
-[2]: https://help.ubuntu.com/community/CommonAccessCard
+* [Text-Only Mode](Text-Only-Mode.md) (instead of a the graphical interface)
+* [Setting Up PKCS11 CAC Drivers in Ubuntu 16](Setting-Up-PKCS11-CAC-Drivers-in-Ubuntu-16.md)
+* [Using cac-agent with Older JGit Releases](Using-cac-agent-with-Older-JGit-Releases.md)
