@@ -19,7 +19,7 @@ to use.
 Quick Start
 ----------------
 
-Setup
+Setup cac-agent
 
 * [Compile cac-agent](Compile-cac-agent.md)
 * [Create the cac-agent Truststore](Create-the-cac-agent-Truststore.md)
@@ -27,7 +27,7 @@ Setup
 	* [Configure cac-agent for Linux](Configure-cac-agent-for-Linux.md)
 	* [Configure cac-agent for Windows](Configure-cac-agent-for-Windows.md)
 
-Use
+Using cac-agent
 
 * [Using cac-agent with Git](Using-cac-agent-with-Git.md)
 
