@@ -11,8 +11,8 @@ Now you have (under the ```target``` directory):
 
 * A library that contains cac support:
 
-		cac-agent-.jar```
+		cac-agent-.jar
 
 * An executable jar that contains jgit plus cac support:
 
-		cac-agent-...-with-dependencies.jar```
+		cac-agent-...-with-dependencies.jar
