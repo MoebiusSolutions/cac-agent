@@ -8,7 +8,7 @@ Create the cac-agent Truststore
 If your Windows OS (IE/Chrome) already trusts the target SSL certs, you can configure cac-agent to use the system
 truststore by creating/editing this file:
 
-	~/.moesol/cac-agent/agent.properties
+	%USERPROFILE%\.moesol\cac-agent\agent.properties
 
 ... and ensuring this setting:
 
