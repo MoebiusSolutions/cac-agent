@@ -26,7 +26,7 @@ You need to configure cac-agent to trust the target server's SSL certs.
 > which will bypass the SSL context that cac-agent uses.
 > 
 
-By default, cac-agent will query the system truststore, but you can override this with the following truststore:
+cac-agent reads from the following truststore:
 
 * Windows: ```%USERPROFILE%\.moesol\cac-agent\truststore.jks```
 * Linux: ```~/.moesol/cac-agent/truststore.jks```
