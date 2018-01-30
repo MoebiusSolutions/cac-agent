@@ -1,8 +1,7 @@
 cac-agent (CAC Integration with Java and Git)
 ================
 
-This project is the source code for this [blog entry][1].
-It is useful when you need to select which certificate
+This is useful when you need to select which certificate
 you want to pass as your client identity when using
 SSL. By default Java passes the first certificate in the
 store. However, with CAC Cards and the Windows-KEY store
