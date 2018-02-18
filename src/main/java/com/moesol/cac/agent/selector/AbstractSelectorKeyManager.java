@@ -129,6 +129,7 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 		return choosenAlias;
 	}
 
+	@Override
 	public CertDescription[] makeCertList(String[] aliases) {
 		if (keyStore == null) {
 			return new CertDescription[] { new CertDescription(null, "", "", "", ""), };
