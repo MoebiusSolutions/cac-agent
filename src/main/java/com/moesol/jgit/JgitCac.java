@@ -7,15 +7,27 @@ import org.eclipse.jgit.transport.http.JDKHttpConnectionFactory;
 import com.moesol.cac.agent.CacHookingAgent;
 
 public class JgitCac extends Main {
+
+	/**
+	 * HookedHttpClientConnectionFactory is the new default. JDK mode is depreciated.
+	 */
+	private static boolean useJdkConnectionFactory = Boolean.getBoolean("use.jdk.connection.factory");
 	
 	public JgitCac() {
 		super();
-//		HttpTransport.setConnectionFactory(new HookedHttpClientConnectionFactory());
-		HttpTransport.setConnectionFactory(new JDKHttpConnectionFactory());
+		
+		if (!useJdkConnectionFactory) {
+			HttpTransport.setConnectionFactory(new HookedHttpClientConnectionFactory());
+		} else {
+			HttpTransport.setConnectionFactory(new JDKHttpConnectionFactory());
+		}
 	}
 
 	public static void main(String[] argv) throws Exception {
-		CacHookingAgent.premain(null, null);
+		if (useJdkConnectionFactory) {
+			CacHookingAgent.premain(null, null);
+		}
+		
 		new JgitCac().run(argv);
 	}
 }
