@@ -11,8 +11,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -25,6 +25,9 @@ import com.moesol.cac.agent.Config;
 import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
 public class HookedHttpClientConnectionFactory extends HttpClientConnectionFactory {
+	
+	private KeyManager[] kmgrs;
+	private TrustManager[] tmgrs;
 
 	@Override
 	public HttpConnection create(URL url) throws IOException {
@@ -50,22 +53,26 @@ public class HookedHttpClientConnectionFactory extends HttpClientConnectionFacto
 
 	private void configurKeyManager(HttpClientConnection conn) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException, IOException {
 		Config config = Config.loadFromUserHome();
-		KeyManager[] kmgrs = AbstractSelectorKeyManager.makeKeyManagers(config);
-		TrustManager[] tmgrs = makeTrustManagers(config);
+		if (kmgrs == null) {
+			kmgrs = AbstractSelectorKeyManager.makeKeyManagers(config);
+		}
+		if (tmgrs == null) {
+			tmgrs = makeTrustManagers(config);
+		}
 		conn.configure(kmgrs, tmgrs, new java.security.SecureRandom());
 
-		// And the default java ones too...
-		SSLContext sslContext = SSLContext.getInstance(CacHookingAgent.CONTEXT);
-		sslContext.init(kmgrs, tmgrs, new java.security.SecureRandom());
+		// Without a hostname verifier jgit fails to install a new ssl connection factory! 
+		// Setting this was key to getting Apache HTTP Client working.
+		conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 	}
 
 	private TrustManager[] makeTrustManagers(Config config) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-		tmf.init(loadKeyStore());
+		tmf.init(loadTrustStore());
 		return tmf.getTrustManagers();
 	}
 	
-	private KeyStore loadKeyStore() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+	private KeyStore loadTrustStore() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
 		File trustStoreFile = new File(System.getProperty("user.home"), CacHookingAgent.CAC_AGENT_DIR + "/truststore.jks");
 		if (trustStoreFile.canRead()) {
 			System.out.println("Reading trustore " + trustStoreFile.getPath());
@@ -75,7 +82,7 @@ public class HookedHttpClientConnectionFactory extends HttpClientConnectionFacto
 		
 		try (FileInputStream trust = new FileInputStream(trustStoreFile)) {
 			KeyStore r = KeyStore.getInstance(KeyStore.getDefaultType());
-			r.load(trust, "password".toCharArray());
+			r.load(trust, null);
 			return r;
 		}
 	}
