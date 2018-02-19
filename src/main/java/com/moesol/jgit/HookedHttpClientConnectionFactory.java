@@ -26,8 +26,13 @@ import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
 public class HookedHttpClientConnectionFactory extends HttpClientConnectionFactory {
 	
+	private final Config config;
 	private KeyManager[] kmgrs;
 	private TrustManager[] tmgrs;
+
+	public HookedHttpClientConnectionFactory(Config config) {
+		this.config = config;
+	}
 
 	@Override
 	public HttpConnection create(URL url) throws IOException {
@@ -52,7 +57,6 @@ public class HookedHttpClientConnectionFactory extends HttpClientConnectionFacto
 	}
 
 	private void configurKeyManager(HttpClientConnection conn) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException, IOException {
-		Config config = Config.loadFromUserHome();
 		if (kmgrs == null) {
 			kmgrs = AbstractSelectorKeyManager.makeKeyManagers(config);
 		}
