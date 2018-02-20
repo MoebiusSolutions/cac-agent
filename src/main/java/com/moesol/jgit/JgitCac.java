@@ -29,10 +29,10 @@ public class JgitCac extends Main {
 	 * HookedHttpClientConnectionFactory is the new default. JDK mode is depreciated.
 	 */
 	private static boolean useJdkConnectionFactory = Boolean.getBoolean("use.jdk.connection.factory");
-	
+
 	public JgitCac() {
 		super();
-		
+
 		if (!useJdkConnectionFactory) {
 			HttpTransport.setConnectionFactory(new HookedHttpClientConnectionFactory(config));
 		} else {
@@ -59,25 +59,24 @@ public class JgitCac extends Main {
 		if (config.isTty()) {
 			try {
 				installConsole(providers);
-				return;
 			} catch (Exception e) {
 				System.out.println("no console");
+				installSwing(providers);
 			}
 		}
-		installSwing(providers);
-		
+
 		CredentialsProvider.setDefault(
 			new ChainingCredentialsProvider(providers.toArray(new CredentialsProvider[0]))
 		);
 	}
 
 	private boolean hasEncryptedPassword() {
-		return config.getUser() != null && 
+		return config.getUser() != null &&
 				config.getPass() != null &&
 				config.getMaster() != null
 				;
 	}
-	
+
 	protected void installConsole(List<CredentialsProvider> providers) {
 		ConsoleAuthenticator.install();
 		providers.add(new ConsoleCredentialsProvider());
@@ -91,10 +90,10 @@ public class JgitCac extends Main {
 		if (useJdkConnectionFactory) {
 			CacHookingAgent.premain(null, null);
 		}
-		
+
 		CachedAuthentication cached = new CachedAuthentication("rite.sd.spawar.navy.mil", 443, "rhastings", "5tgb%TGB5tgb%TGB");
 		CachedAuthenticator.add(cached);
-		
+
 		new JgitCac().run(argv);
 	}
 }
