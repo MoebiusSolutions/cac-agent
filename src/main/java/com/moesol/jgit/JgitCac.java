@@ -91,9 +91,6 @@ public class JgitCac extends Main {
 			CacHookingAgent.premain(null, null);
 		}
 
-		CachedAuthentication cached = new CachedAuthentication("rite.sd.spawar.navy.mil", 443, "rhastings", "5tgb%TGB5tgb%TGB");
-		CachedAuthenticator.add(cached);
-
 		new JgitCac().run(argv);
 	}
 }
