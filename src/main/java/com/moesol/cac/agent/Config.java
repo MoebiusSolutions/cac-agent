@@ -4,16 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.PBEParameterSpec;
 
 import org.jasypt.util.text.BasicTextEncryptor;
 
@@ -75,11 +67,27 @@ public class Config {
 		this.master = master;
 	}
 
-
-	public String decryptPass() {
+	/**
+	 * Returns the git password, decrypting if necessary.
+	 */
+	public String getDecryptedPass() {
+		// If no master defined, we presume password is plain text
+		if (this.master == null) {
+			return this.encryptedPassword;
+		}
 		BasicTextEncryptor bte = new BasicTextEncryptor();
-		bte.setPassword(getMaster());
-		return bte.decrypt(getPass());
+		bte.setPassword(this.master);
+		return bte.decrypt(this.encryptedPassword);
+	}
+
+	/**
+	 * Returns an encrypted version of the git password, using the provided master
+	 * password.
+	 */
+	public static String encryptPass(String masterPass, String pass) {
+		BasicTextEncryptor bte = new BasicTextEncryptor();
+		bte.setPassword(masterPass);
+		return bte.encrypt(pass);
 	}
 
 	public static Config loadFromUserHome() {
