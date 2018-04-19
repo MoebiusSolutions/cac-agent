@@ -27,9 +27,9 @@ Specify CAC middlware by creating:
 	library=/usr/lib64/pkcs11/libcoolkeypk11.so
 	name="CAC Key"
 
-... replacing ```/usr/lib64/pkcs11/libcoolkeypk11.so``` with your chosen middleware.
-The [previously reference guide](Setting-Up-CAC-Smart-Card-in-Ubuntu-16.md) enumerates these options:
+... replacing `/usr/lib64/pkcs11/libcoolkeypk11.so` with your chosen middleware.
+The [previously referenced guide](Setting-Up-PKCS11-CAC-Drivers-in-Ubuntu-16.md) enumerates these options:
 
-* (for original coolkey): ```/usr/lib/pkcs11/libcoolkeypk11.so```
-* (for coolkey with 64-bit fix): ```/usr/lib64/pkcs11/libcoolkeypk11.so```
-* (for opensc): ```/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so```
+* (for original coolkey): `/usr/lib/pkcs11/libcoolkeypk11.so`
+* (for coolkey with 64-bit fix): `/usr/lib64/pkcs11/libcoolkeypk11.so`
+* (for opensc): `/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so`
