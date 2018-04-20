@@ -1,6 +1,8 @@
-package com.moesol.jgit;
+package org.eclipse.jgit.pgm;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,18 +10,15 @@ import org.eclipse.jgit.awtui.AwtAuthenticator;
 import org.eclipse.jgit.awtui.AwtCredentialsProvider;
 import org.eclipse.jgit.console.ConsoleAuthenticator;
 import org.eclipse.jgit.console.ConsoleCredentialsProvider;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.pgm.Main;
 import org.eclipse.jgit.transport.ChainingCredentialsProvider;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.HttpTransport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.transport.http.JDKHttpConnectionFactory;
-import org.eclipse.jgit.util.CachedAuthenticator;
-import org.eclipse.jgit.util.CachedAuthenticator.CachedAuthentication;
 
 import com.moesol.cac.agent.CacHookingAgent;
 import com.moesol.cac.agent.Config;
+import com.moesol.jgit.HookedHttpClientConnectionFactory;
 
 public class JgitCac extends Main {
 
@@ -41,9 +40,9 @@ public class JgitCac extends Main {
 	}
 
 	@Override
-	protected Repository openGitDir(String aGitdir) throws IOException {
+	void init(final TextBuiltin cmd) throws IOException {
 		installCredentialProviderChains();
-		return super.openGitDir(aGitdir);
+		super.init(cmd);
 	}
 
 	/**
@@ -53,8 +52,8 @@ public class JgitCac extends Main {
 	 */
 	private void installCredentialProviderChains() {
 		List<CredentialsProvider> providers = new ArrayList<>();
-		if (hasEncryptedPassword()) {
-			providers.add(new UsernamePasswordCredentialsProvider(config.getUser(), config.decryptPass()));
+		if (hasConfiguredCredentials()) {
+			providers.add(new UsernamePasswordCredentialsProvider(config.getUser(), config.getDecryptedPass()));
 		}
 		if (config.isTty()) {
 			try {
@@ -64,17 +63,14 @@ public class JgitCac extends Main {
 				installSwing(providers);
 			}
 		}
-
-		CredentialsProvider.setDefault(
-			new ChainingCredentialsProvider(providers.toArray(new CredentialsProvider[0]))
-		);
+		if (hasConfiguredCredentials()) {
+			CredentialsProvider.setDefault(
+					new ChainingCredentialsProvider(providers.toArray(new CredentialsProvider[0])));
+		}
 	}
 
-	private boolean hasEncryptedPassword() {
-		return config.getUser() != null &&
-				config.getPass() != null &&
-				config.getMaster() != null
-				;
+	private boolean hasConfiguredCredentials() {
+		return config.getUser() != null && config.getDecryptedPass() != null;
 	}
 
 	protected void installConsole(List<CredentialsProvider> providers) {
@@ -86,7 +82,27 @@ public class JgitCac extends Main {
 		providers.add(new AwtCredentialsProvider());
 	}
 
+	private static void encryptPassword() throws IOException {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+			System.out.println("");
+			System.out.println("Enter git password:");
+			String gitPass = br.readLine();
+			System.out.println("");
+			System.out.println("Enter a 'master' password (protects git password):");
+			String masterPass = br.readLine();
+			System.out.println("");
+			System.out.println("== Encrypted Git Password ==");
+			System.out.println(Config.encryptPass(masterPass, gitPass));
+			System.out.println("");
+		}
+	}
+
 	public static void main(String[] argv) throws Exception {
+		if (argv.length == 1 && "--cac-agent-encrypt".equals(argv[0])) {
+			encryptPassword();
+			return;
+		}
+
 		if (useJdkConnectionFactory) {
 			CacHookingAgent.premain(null, null);
 		}

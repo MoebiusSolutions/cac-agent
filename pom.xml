@@ -64,7 +64,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Premain-Class>com.moesol.url.CacHookingAgent</Premain-Class>
+							<Premain-Class>org.eclipse.jgit.pgm.CacHookingAgent</Premain-Class>
 							<Can-Redefine-Classes>false</Can-Redefine-Classes>
 							<Can-Retransform-Classes>false</Can-Retransform-Classes>
 							<Git-Commit-Id>${mvngit.commit.id}</Git-Commit-Id>
@@ -92,7 +92,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.moesol.jgit.JgitCac</mainClass>
+							<mainClass>org.eclipse.jgit.pgm.JgitCac</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
