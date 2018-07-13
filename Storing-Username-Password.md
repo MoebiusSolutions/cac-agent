@@ -9,7 +9,7 @@ have to enter them on every git command, simply add them to
 `~/.moesol/cac-agent/agent.properties` (or `%USERPROFILE%\.moesol\cac-agent\agent.properties` on Windows):
 
 	user: XXXX
-	password: XXXX
+	pass: XXXX
 
 
 Encrypted Username/Password
@@ -29,6 +29,6 @@ Then enter your git password and a new master password.
 Then add your encrypted git password and master password to `agent.properties`:
 
 	user: XXXX
-	password: <output-of-command>
+	pass: <output-of-command>
 	master: XXXX
 
