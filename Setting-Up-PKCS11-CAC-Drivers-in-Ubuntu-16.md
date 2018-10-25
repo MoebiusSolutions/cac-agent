@@ -31,7 +31,7 @@ OpenSC
 * Unstable in firefox/chrome, but generally stable with command line tools
 * Works with all government-issued and retail CACs we've tried
 
-NOTE: You can install both middlwares and selectively use as desired.
+NOTE: You can install both middle-wares and selectively use as desired.
 
 
 Install Middlware
@@ -103,3 +103,12 @@ Verify the module was added:
 
 	modutil -dbdir sql:.pki/nssdb/ -list
 
+## Slots
+
+Some devices may need the slot defined. For example, Yubikey's may need to use `slotListIndex=1`
+
+```
+library=/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so
+name="Yubikey"
+slotListIndex=1 
+```
