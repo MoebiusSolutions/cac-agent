@@ -13,7 +13,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.JOptionPane;
 
-import com.moesol.cac.agent.CacHookingAgent;
+import com.moesol.cac.agent.Config;
 
 public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 
@@ -55,9 +55,8 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	private void setUpProvider() {
 		chooser.showBusy("Initializing PKCS#11...");
 		try {
-			String home = System.getProperty("user.home");
-			String configName = home + "/" + CacHookingAgent.CAC_AGENT_DIR + "/pkcs11.cfg";
-			File configFile = new File(configName);
+			File configFile = new File(Config.computeProfileFolder(), "pkcs11.cfg");
+			String configName = configFile.getAbsolutePath();
 			if (configFile.exists()) {
 				provider = new sun.security.pkcs11.SunPKCS11(configName);
 				Security.addProvider(provider);	

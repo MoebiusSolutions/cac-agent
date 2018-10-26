@@ -6,7 +6,6 @@ import java.lang.instrument.Instrumentation;
 import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
 public class CacHookingAgent {
-	public static final String CAC_AGENT_DIR = ".moesol/cac-agent";
 	public static boolean DEBUG = false;
 	public static String CONTEXT = "TLS";
 
@@ -22,7 +21,7 @@ public class CacHookingAgent {
 	}
 
 	public static void maybeSetTrustFile() {
-		File trustStoreFile = new File(System.getProperty("user.home"), CAC_AGENT_DIR + "/truststore.jks");
+		File trustStoreFile = new File(Config.computeProfileFolder(), "truststore.jks"); 
 		if (trustStoreFile.canRead()) {
 			System.out.println("Using trustore " + trustStoreFile.getPath());
 			System.setProperty("javax.net.ssl.trustStoreType", "JKS");

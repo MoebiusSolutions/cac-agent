@@ -20,7 +20,6 @@ import org.eclipse.jgit.transport.http.HttpConnection;
 import org.eclipse.jgit.transport.http.apache.HttpClientConnection;
 import org.eclipse.jgit.transport.http.apache.HttpClientConnectionFactory;
 
-import com.moesol.cac.agent.CacHookingAgent;
 import com.moesol.cac.agent.Config;
 import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
@@ -77,7 +76,7 @@ public class HookedHttpClientConnectionFactory extends HttpClientConnectionFacto
 	}
 	
 	private KeyStore loadTrustStore() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-		File trustStoreFile = new File(System.getProperty("user.home"), CacHookingAgent.CAC_AGENT_DIR + "/truststore.jks");
+		File trustStoreFile = new File(Config.computeProfileFolder(), "truststore.jks");
 		if (trustStoreFile.canRead()) {
 			System.out.println("Reading trustore " + trustStoreFile.getPath());
 		} else {

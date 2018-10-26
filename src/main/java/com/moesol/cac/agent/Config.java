@@ -11,6 +11,9 @@ import org.jasypt.util.text.BasicTextEncryptor;
 
 public class Config {
 	private static final Logger LOGGER = Logger.getLogger(Config.class.getName());
+	private static final String CAC_AGENT_DIR = ".moesol/cac-agent";
+	private static final String COM_MOESOL_AGENT_PROFILE = "com.moesol.agent.profile";
+	private static final String AGENT_PROPERTIES = "agent.properties";
 
 	private boolean useWindowsTrust = true;
 	private String defaultCertificateName = null;
@@ -96,15 +99,15 @@ public class Config {
 			return new Config();
 		}
 		try {
-			return doLoadProperties(userHome);
+			return doLoadProperties();
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 			return new Config();
 		}
 	}
 
-	private static Config doLoadProperties(String userHome) throws IOException, FileNotFoundException {
-		File file = new File(userHome, CacHookingAgent.CAC_AGENT_DIR + "/agent.properties");
+	private static Config doLoadProperties() throws IOException, FileNotFoundException {
+		File file = computeAgentPropertiesFile();
 		System.out.printf("Loading properties from %s%n", file);
 		if (!file.exists()) {
 			return new Config();
@@ -122,6 +125,20 @@ public class Config {
 			result.setMaster(p.getProperty("master"));
 			return result;
 		}
+	}
+	
+	public static File computeProfileFolder() {
+		String userHome = System.getProperty("user.home");
+		String profile = System.getProperty(COM_MOESOL_AGENT_PROFILE, "");
+		if (profile.isEmpty()) {
+			return new File(userHome, CAC_AGENT_DIR);
+		} else {
+			return new File(new File(userHome, CAC_AGENT_DIR), profile);
+		}
+	}
+
+	private static File computeAgentPropertiesFile() {
+		return new File(computeProfileFolder(), AGENT_PROPERTIES);
 	}
 
 }
