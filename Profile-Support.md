@@ -16,3 +16,25 @@ agent.properties
 pkcs11.cfg
 truststore.jks
 ```
+
+Configuration Directory Support
+===============================
+
+If you would rather put the configuration directory into a specific directory instead
+of having it under your home folder then you can give the absolute path to the configuration
+directory using the Java system property `com.moesol.agent.config`. For example,
+
+```
+-Dcom.moesol.agent.config=/home/user/jgit-cac/configuration
+```
+
+This form is useful if you have a configuration with a `pkcs11.cfg` and a `truststore.jks` that you would like
+to zip up and share. 
+
+> Note, be sure to remove your saved credentials in `agent.properties` before you share it.
+
+Option Precedence
+=================
+
+If both `com.moesol.agent.config` and `com.moesol.agent.profile` are specified `com.moesol.agent.config`,
+then `com.moesol.agent.config` takes precedence and `com.moesol.agent.profile` is ignored.
