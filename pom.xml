@@ -115,11 +115,14 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.0.0</version>
+			<version>3.0.0</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>make-assembly</id>
-                                <phase>none</phase>
+				<phase/>
                             </execution>
                         </executions>
                     </plugin>
