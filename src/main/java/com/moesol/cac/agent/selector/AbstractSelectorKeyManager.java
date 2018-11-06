@@ -11,6 +11,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -105,19 +106,12 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 			return choosenAlias;
 		}
 
-		Config config = Config.loadFromUserHome();
-		choosenAlias = config.getDefaultCertificateName();
-		if (choosenAlias != null) {
-			choosenAlias = choosenAlias.trim();
-			if (!choosenAlias.isEmpty()) {
-				if (CacHookingAgent.DEBUG) {
-					System.out.println("config chooseClientAlias: " + choosenAlias);
-				}
+		try {
+			choosenAlias = maybeUseDefaultCertificateName(issuers);
+			if (choosenAlias != null) {
 				return choosenAlias;
 			}
-		}
 
-		try {
 			final String[] aliases = getClientAliases(null, issuers);
 			choosenAlias = chooser.chooseFromAliases(aliases);
 		} catch (Exception e) {
@@ -127,6 +121,35 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 			System.out.println("chooseClientAlias: " + choosenAlias);
 		}
 		return choosenAlias;
+	}
+	
+	/**
+	 * @param issuers
+	 * @return null unless the default.cert.name should be used.
+	 */
+	private String maybeUseDefaultCertificateName(Principal[] issuers) {
+		Config config = Config.loadFromUserHome();
+		
+		String defaultCertName = config.getDefaultCertificateName();
+		if (defaultCertName == null) {
+			return null;
+		}
+		defaultCertName = defaultCertName.trim();
+		if (defaultCertName.isEmpty()) {
+			return null;
+		}
+		List<String> alias = Arrays.asList(getClientAliases(null, issuers));
+		if (!alias.contains(defaultCertName)) {
+			System.err.println();
+			System.err.println("Note: 'default.cert.name' does not exist, ignoring");
+			System.err.println("       default.cert.name=" + defaultCertName);
+			System.err.println();
+			return null;
+		}
+		if (CacHookingAgent.DEBUG) {
+			System.out.println("config chooseClientAlias: " + defaultCertName);
+		}
+		return defaultCertName;
 	}
 
 	@Override
