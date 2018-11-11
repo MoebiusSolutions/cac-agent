@@ -32,6 +32,7 @@ Setup cac-agent
 Using cac-agent
 
 * [Using cac-agent with Git](Using-cac-agent-with-Git.md)
+* [Using cac-agent with SSL-Relay](Using-cac-agent-with-ssl-relay.md)
 
 
 Other Notes
