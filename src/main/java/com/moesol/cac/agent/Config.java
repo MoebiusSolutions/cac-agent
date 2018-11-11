@@ -7,12 +7,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import org.jasypt.util.text.BasicTextEncryptor;
 
 public class Config {
-	private static final Logger LOGGER = Logger.getLogger(Config.class.getName());
 	private static final String CAC_AGENT_DIR = ".moesol/cac-agent";
 	private static final String COM_MOESOL_AGENT_PROFILE = "com.moesol.agent.profile";
 	private static final String COM_MOESOL_AGENT_CONFIG  = "com.moesol.agent.config";
