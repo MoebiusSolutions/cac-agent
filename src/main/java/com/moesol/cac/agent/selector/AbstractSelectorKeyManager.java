@@ -17,7 +17,11 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.X509ExtendedKeyManager;
+
+
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509KeyManager;
 
 import com.moesol.cac.agent.CacHookingAgent;
@@ -30,7 +34,9 @@ import com.moesol.cac.agent.Config;
  * 
  * @author hastings
  */
-public abstract class AbstractSelectorKeyManager implements X509KeyManager, IdentityKeyListProvider {
+public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager	
+	implements X509KeyManager, IdentityKeyListProvider 
+{
 	private String choosenAlias = null;
 	private final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
@@ -77,7 +83,7 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 		return new KeyManager[] { keyManager };
 	}
 
-	private KeyStore getKeyStore() {
+	public KeyStore getKeyStore() {
 		synchronized (keyStoreLock) {
 			if (keyStore != null) {
 				return keyStore;
@@ -93,6 +99,11 @@ public abstract class AbstractSelectorKeyManager implements X509KeyManager, Iden
 
 	protected abstract KeyStore accessKeyStore() throws Exception;
 
+	@Override
+	public String chooseEngineClientAlias(String[] keyType, Principal[] issuers, SSLEngine engine) {
+		return chooseClientAlias(keyType, issuers, (Socket)null);
+	}
+	
 	@Override
 	public synchronized String chooseClientAlias(final String[] keyType, final Principal[] issuers, Socket socket) {
 		if (CacHookingAgent.DEBUG) {
