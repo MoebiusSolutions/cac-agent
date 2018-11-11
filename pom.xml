@@ -92,11 +92,6 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					<archive>
-						<manifest>
-							<mainClass>org.eclipse.jgit.pgm.JgitCac</mainClass>
-						</manifest>
-					</archive>
 				</configuration>
 				<executions>
 					<execution>
@@ -105,6 +100,29 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>cac-aware-jgit</finalName>
+							<archive>
+								<manifest>
+									<mainClass>org.eclipse.jgit.pgm.JgitCac</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+					<execution>
+						<id>cac-aware-ssl-relay</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>cac-aware-ssl-relay</finalName>
+							<archive>
+								<manifest>
+									<mainClass>com.moesol.cac.relay.Main</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
