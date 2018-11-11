@@ -15,6 +15,7 @@ to use.
 * ```cac-agent-...-with-dependencies.jar``` executable jar that contains both jgit and cac-agent.
 
 ## Status
+
 [![CircleCI](https://circleci.com/gh/MoebiusSolutions/cac-agent.svg?style=svg)](https://circleci.com/gh/MoebiusSolutions/cac-agent)
 
 Quick Start

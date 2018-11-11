@@ -15,6 +15,7 @@ public class Config {
 	private static final Logger LOGGER = Logger.getLogger(Config.class.getName());
 	private static final String CAC_AGENT_DIR = ".moesol/cac-agent";
 	private static final String COM_MOESOL_AGENT_PROFILE = "com.moesol.agent.profile";
+	private static final String COM_MOESOL_AGENT_CONFIG  = "com.moesol.agent.config";
 	private static final String AGENT_PROPERTIES = "agent.properties";
 
 	private boolean useWindowsTrust = true;
@@ -148,12 +149,16 @@ public class Config {
 	
 	public static File computeProfileFolder() {
 		String userHome = System.getProperty("user.home");
+		String configuration  = System.getProperty(COM_MOESOL_AGENT_CONFIG, "");
 		String profile = System.getProperty(COM_MOESOL_AGENT_PROFILE, "");
-		if (profile.isEmpty()) {
-			return new File(userHome, CAC_AGENT_DIR);
-		} else {
-			return new File(new File(userHome, CAC_AGENT_DIR), profile);
+		
+		if (!configuration.isEmpty()) {
+			return new File(configuration);
 		}
+		if (!profile.isEmpty()) {
+			return new File(new File(userHome, CAC_AGENT_DIR), profile);
+		} 
+		return new File(userHome, CAC_AGENT_DIR);
 	}
 
 	private static File computeAgentPropertiesFile() {
