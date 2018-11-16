@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import org.jasypt.util.text.BasicTextEncryptor;
 
 public class Config {
-	private static final Logger LOGGER = Logger.getLogger(Config.class.getName());
 	private static final String CAC_AGENT_DIR = ".moesol/cac-agent";
 	private static final String COM_MOESOL_AGENT_PROFILE = "com.moesol.agent.profile";
 	private static final String COM_MOESOL_AGENT_CONFIG  = "com.moesol.agent.config";
@@ -22,6 +22,7 @@ public class Config {
 	private String user = null;
 	private String encryptedPassword = null;
 	private String master = null;
+	private final Map<String, String> relays = new HashMap<>();
 
 	public boolean isTty() {
 		return tty;
@@ -93,6 +94,10 @@ public class Config {
 		bte.setPassword(masterPass);
 		return bte.encrypt(pass);
 	}
+	
+	public Map<String, String> getRelays() {
+		return relays;
+	}
 
 	public static Config loadFromUserHome() {
 		String userHome = System.getProperty("user.home");
@@ -124,8 +129,20 @@ public class Config {
 			result.setUser(p.getProperty("user"));
 			result.setPass(p.getProperty("pass"));
 			result.setMaster(p.getProperty("master"));
+			p.keySet().stream()
+				.map(Object::toString)
+				.filter(Config::isRelayKey)
+				.forEach(k -> result.addRelay(k, p.getProperty(k)));
+				;
 			return result;
 		}
+	}
+	private static boolean isRelayKey(String key) {
+		return key.startsWith("relay.");
+	}
+	private void addRelay(String key, String value) {
+		key = key.replaceFirst("^relay\\.", "");
+		relays.put(key, value);
 	}
 	
 	public static File computeProfileFolder() {
