@@ -57,7 +57,7 @@ java -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar
 Now, you can point your development tools at your local ports:
 
 ```
-git add remote relay http://git-local:9090/same/path/as/without/relay/project.git
+git remote add relay http://git-local:9090/same/path/as/without/relay/project.git
 ```
 
 Running fetch as shown below will `git fetch` from the CAC protected server.
