@@ -58,7 +58,8 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			File configFile = new File(Config.computeProfileFolder(), "pkcs11.cfg");
 			String configName = configFile.getAbsolutePath();
 			if (configFile.exists()) {
-				provider = new sun.security.pkcs11.SunPKCS11(configName);
+				provider = Security.getProvider("SunPKCS11");
+				provider = provider.configure(configName);
 				Security.addProvider(provider);	
 			} else {
 				String message = "Not found: " + configName;
