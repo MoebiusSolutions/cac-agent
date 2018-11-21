@@ -39,17 +39,17 @@ public class ServerRelay {
 		ServerSocket listener = new ServerSocket(this.bindPort, 0, Inet4Address.getByName(this.bindHost));
 		try {
 			while (true) {
-				Socket socket = listener.accept();
-				relayTo(socket);
+				Socket clientSocket = listener.accept();
+				relayTo(clientSocket);
 			}
 		} finally {
 			listener.close();
 		}
 	}
 
-	private void relayTo(Socket socket) throws UnknownHostException, IOException {
-		Socket toServer = SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
-		new BiDirectionalRelay(socket, toServer);
+	private void relayTo(Socket clientSocket) throws UnknownHostException, IOException {
+		Socket serverSocket = SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
+		new BiDirectionalRelay(clientSocket, serverSocket);
 	}
 
 }
