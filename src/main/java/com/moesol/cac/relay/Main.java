@@ -32,8 +32,8 @@ public class Main {
 	}
 
 	private static void setUpSslForCac(Config config) throws NoSuchAlgorithmException, KeyManagementException {
+		CacHookingAgent.maybeSetTrustFile(); // Must come before below...
 		AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault(config);
-		CacHookingAgent.maybeSetTrustFile();
 	}
 
 	public void run() {
