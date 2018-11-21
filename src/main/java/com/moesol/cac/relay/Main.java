@@ -8,6 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.moesol.cac.agent.CacHookingAgent;
@@ -15,6 +17,7 @@ import com.moesol.cac.agent.Config;
 import com.moesol.cac.agent.selector.AbstractSelectorKeyManager;
 
 public class Main {
+	private static Logger LOGGER = Logger.getLogger(Main.class.getName());
 	private final Map<String, String> bindings;
 
 	public Main(Config config) {
@@ -35,7 +38,11 @@ public class Main {
 
 	public void run() {
 		List<Thread> threads = bindings.entrySet().stream().map(this::makeThreadForEntry).collect(Collectors.toList());
-		System.out.println("all started");
+		if (threads.size() == 0) {
+			LOGGER.log(Level.WARNING, "No bindings configured in agent.properties file");
+		} else {
+			System.out.println("all started");
+		}
 		threads.forEach(this::join);
 	}
 
