@@ -18,11 +18,9 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.X509ExtendedKeyManager;
-
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509KeyManager;
 
 import com.moesol.cac.agent.CacHookingAgent;
@@ -32,7 +30,11 @@ import com.moesol.cac.agent.Config;
  * When installed as the default key manager, this class prompts the user as
  * needed to choose a key. The default chooser uses Swing, but a Tty base
  * chooser can be set as a property.
- * 
+ * <p>
+ * Note that this key manager cannot be used if you are creating an SSL/TLS
+ * server because it throws UnsupportedOperationException when asked
+ * to choose a server KeyManager.
+ * <p>
  * @author hastings
  */
 public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager	
@@ -100,11 +102,11 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 
 	protected abstract KeyStore accessKeyStore() throws Exception;
 
+	// NOTE: Overrides the non-abstract method in base class, tricky.
 	@Override
 	public String chooseEngineClientAlias(String[] keyType, Principal[] issuers, SSLEngine engine) {
 		return chooseClientAlias(keyType, issuers, (Socket)null);
 	}
-	
 	@Override
 	public synchronized String chooseClientAlias(final String[] keyType, final Principal[] issuers, Socket socket) {
 		if (CacHookingAgent.DEBUG) {
@@ -231,6 +233,11 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 		}
 	}
 
+	// NOTE: Overrides the non-abstract method in base class, tricky.
+	@Override
+	public String chooseEngineServerAlias(String keyType, Principal[] issuers, SSLEngine engine) {
+		throw new UnsupportedOperationException("Client manager only");
+	}
 	@Override
 	public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
 		throw new UnsupportedOperationException("Client manager only");
@@ -245,5 +252,5 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 		chooser.reportException(e);
 		return new RuntimeException(e);
 	}
-
+	
 }

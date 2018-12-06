@@ -23,6 +23,7 @@ public class Config {
 	private String encryptedPassword = null;
 	private String master = null;
 	private final Map<String, String> relays = new HashMap<>();
+	private final Map<String, String> secureRelays = new HashMap<>();
 
 	public boolean isTty() {
 		return tty;
@@ -98,6 +99,9 @@ public class Config {
 	public Map<String, String> getRelays() {
 		return relays;
 	}
+	public Map<String, String> getSecureRelays() {
+		return secureRelays;
+	}
 
 	public static Config loadFromUserHome() {
 		String userHome = System.getProperty("user.home");
@@ -129,10 +133,16 @@ public class Config {
 			result.setUser(p.getProperty("user"));
 			result.setPass(p.getProperty("pass"));
 			result.setMaster(p.getProperty("master"));
+
 			p.keySet().stream()
 				.map(Object::toString)
 				.filter(Config::isRelayKey)
 				.forEach(k -> result.addRelay(k, p.getProperty(k)));
+				;
+			p.keySet().stream()
+				.map(Object::toString)
+				.filter(Config::isSecuryRelayKey)
+				.forEach(k -> result.addSecureRelay(k, p.getProperty(k)));
 				;
 			return result;
 		}
@@ -143,6 +153,13 @@ public class Config {
 	private void addRelay(String key, String value) {
 		key = key.replaceFirst("^relay\\.", "");
 		relays.put(key, value);
+	}
+	private static boolean isSecuryRelayKey(String key) {
+		return key.startsWith("sslRelay.");
+	}
+	private void addSecureRelay(String key, String value) {
+		key = key.replaceFirst("^sslRelay\\.", "");
+		secureRelays.put(key, value);
 	}
 	
 	public static File computeProfileFolder() {
