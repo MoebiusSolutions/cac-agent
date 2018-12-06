@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.ssl.SSLException;
+
 public class BiDirectionalRelay {
 	private static final Logger LOGGER = Logger.getLogger(BiDirectionalRelay.class.getName());
 	private static int BUFSIZ = 64*1024;
@@ -75,6 +77,9 @@ public class BiDirectionalRelay {
 			while ((len = is.read(buffer)) != -1) {
 				os.write(buffer, 0, len);
 			}
+		} catch (SSLException e) {
+			LOGGER.log(Level.WARNING, "SSL issue, exiting", e);
+			System.exit(1);
 		} catch (SocketException e) {
 			if ("Socket closed".equals(e.getMessage())) {
 				LOGGER.log(Level.INFO, "Done: {0} to {1}", new Object[] { src, dst });

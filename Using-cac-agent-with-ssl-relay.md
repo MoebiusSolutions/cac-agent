@@ -76,3 +76,23 @@ Similarly, setup your maven repository to use `http://mvn-local:9090/same/path/a
 Now, the next mvn download triggered will be through the relay and prompt you for your PIN
 if it needs it. Any downloads will be downloaded from the CAC protected server after the ssl-relay
 has presented the server with your CAC identity and validated it.
+
+## SSL Server
+
+You can make the `relay` serve SSL sockets by adding `sslRelay` prefixed properties in
+in your `agent.properties`:
+
+```
+sslRelay.docker-local\:8443=cac-required.git.server.org:443
+```
+
+But then, you must configure a SSL key for the server. Below, a self-signed key was configured
+into `certs/me.p12`, with the java default key store password. Adding these options to the `java`
+command when starting the relay configures the key:
+
+```
+  java \
+    -Djavax.net.ssl.keyStoreType=pkcs12 \
+    -Djavax.net.ssl.keyStore=certs/me.p12 \
+    "$@" -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar; 
+```
