@@ -75,20 +75,15 @@ Alternatively, you can download this directly from the releases page on GitHub.
 Executing cac-tls-relay
 ----------------
 
-The Now we can simply call the cac-agent jar as if it were the jgit executable:
+The Now we can simply call the cac-agent jar (as long as it's running, connections are relayed)
 
-	# All excutions take this form:
-	java -jar cac-tls-relay.jar <git commands>
-
-	# For example:
-	java -jar cac-tls-relay.jar clone https://our-server.gov/repo.git
-
+	java -jar cac-tls-relay.jar
 
 
 Example URL for Git
 ----------------
 
-You could use the standard (non-CAC) git command line to clone through the relay via:
+You could use the standard (non-CAC) git command to clone through the relay via:
 
 	git remote clone http://git-local:9090/same/path/as/without/relay/project.git
 
