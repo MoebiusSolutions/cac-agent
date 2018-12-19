@@ -75,9 +75,11 @@ Alternatively, you can download this directly from the releases page on GitHub.
 Executing cac-tls-relay
 ----------------
 
-The Now we can simply call the cac-agent jar (as long as it's running, connections are relayed)
+We can simply execute the cac-tls-relay jar to open the relay:
 
 	java -jar cac-tls-relay.jar
+
+The first time each service is hit, the user will be prompted for their CAC PIN.
 
 
 Example URL for Git
