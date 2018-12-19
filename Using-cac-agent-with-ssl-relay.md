@@ -27,7 +27,7 @@ cac-tls-relay is configured through the `agent.properties` file:
 	# Linux
 	~/.moesol/cac-agent/agent.properties
 
-Within `agent.properties`, we define relay bindins with the `relay.` prefix. 
+Within `agent.properties`, we define relay bindings with the `relay.` prefix. 
 The rest of the property name is the `bindHostname:bindPort`. The value
 of the property is the `targetHostname:targetPort` to relay/forward to.
 
