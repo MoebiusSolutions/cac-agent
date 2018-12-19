@@ -78,10 +78,10 @@ Executing cac-tls-relay
 The Now we can simply call the cac-agent jar as if it were the jgit executable:
 
 	# All excutions take this form:
-	java -jar cac-jgit.jar <git commands>
+	java -jar cac-tls-relay.jar <git commands>
 
 	# For example:
-	java -jar cac-jgit.jar clone https://our-server.gov/repo.git
+	java -jar cac-tls-relay.jar clone https://our-server.gov/repo.git
 
 
 
