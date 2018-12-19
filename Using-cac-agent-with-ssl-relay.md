@@ -89,8 +89,6 @@ You could use the standard (non-CAC) git command to clone through the relay via:
 
 	git remote clone http://git-local:9090/same/path/as/without/relay/project.git
 
-This will trigger the Swing user interface to prompt for you PIN.
-
 
 Local TLS (Local HTTPS)
 ----------------
