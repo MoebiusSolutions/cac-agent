@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>usn.otm</groupId>
-	<artifactId>cac-agent</artifactId>
+	<artifactId>cac-agent-parent</artifactId>
 	<version>1.12-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>cac-agent</name>
-	<description>Builds a javaagent jar that hooks SSL in Java
-	to use Windows-MY keystore by default, and posts a Swing
-	UI to pick which key you want to use.</description>
+	<packaging>pom</packaging>
+	<name>cac-agent-parent</name>
+	<description>Root POM for cac-agent</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<scm>
@@ -20,43 +20,35 @@
 		<tag>HEAD</tag>
 	</scm>
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.9.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jgit</groupId>
-			<artifactId>org.eclipse.jgit.pgm</artifactId>
-			<version>4.8.0.201706111038-r</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jasypt</groupId>
-			<artifactId>jasypt</artifactId>
-			<version>1.9.0</version>
-		</dependency>
-	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.9.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jgit</groupId>
+				<artifactId>org.eclipse.jgit.pgm</artifactId>
+				<version>4.8.0.201706111038-r</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jasypt</groupId>
+				<artifactId>jasypt</artifactId>
+				<version>1.9.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -84,47 +76,6 @@
 				</dependencies>
 			</plugin>
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.0.0</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>cac-aware-jgit</finalName>
-							<archive>
-								<manifest>
-									<mainClass>org.eclipse.jgit.pgm.JgitCac</mainClass>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cac-aware-ssl-relay</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>cac-aware-ssl-relay</finalName>
-							<archive>
-								<manifest>
-									<mainClass>com.moesol.cac.relay.Main</mainClass>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.1</version>
@@ -134,6 +85,13 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<modules>
+		<module>cac-agent</module>
+		<module>cac-jgit</module>
+		<module>cac-tls-relay</module>
+	</modules>
+
 	<profiles>
 		<profile>
 			<id>circleci</id>
@@ -156,4 +114,5 @@
 			</build>
 		</profile>
 	</profiles>
+
 </project>
