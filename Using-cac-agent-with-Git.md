@@ -1,55 +1,33 @@
-Using cac-agent with Git
+Using cac-jgit
 ================
 
 
-(Linux) Create a Wrapper Script
+Locating the Executable Jar
 ----------------
 
-It's a lot more convenient to use an executable script than call the jar directly, so let's create the script:
+If you built cac-agent from source, you'll find the cac-jgit executable jar here:
 
-	sudo vi /usr/local/bin/cac-git
+	./cac-jgit/target/cac-jgit.jar
 
-... with contents (replacing ```~/Downloads/cac-agent/target/cac-agent-...-jar-with-dependencies.jar``` with your executable jar path):
-
-	#!/bin/bash
-
-	java -jar ~/Downloads/cac-agent/target/cac-agent-...-jar-with-dependencies.jar $*
-
-And set the permissions appropriately:
-
-	sudo chown root:root /usr/local/bin/cac-git
-	sudo chmod 755 /usr/local/bin/cac-git
+Alternatively, you can download this directly from the releases page on GitHub.
 
 
-(Windows) Create a Wrapper Script
+Using cac-jgit
 ----------------
 
-It's a lot more convenient to use an executable script than call the jar directly, so let's create the script:
+The Now we can simply call the cac-agent jar as if it were the jgit executable:
 
-	notepad "%USERPROFILE%\cac-git.cmd"
+	# All excutions take this form:
+	java -jar cac-jgit.jar <git commands>
 
-... with contents (replacing ```"%USERPROFILE%/Downloads/cac-agent/target/cac-agent-...-jar-with-dependencies.jar"``` with your executable jar path):
-
-	java -jar "%USERPROFILE%/Downloads/cac-agent/target/cac-agent-...-jar-with-dependencies.jar" %*
-
-
-Using cac-agent
-----------------
-
-Now we can simply call the cac-agent wrapper script as if it were the git executable. For example:
-
-	# Linux
-	cac-git clone https://our-server.gov/repo.git
-	# Windows
-	cac-git.cmd clone https://our-server.gov/repo.git
+	# For example:
+	java -jar cac-jgit.jar clone https://our-server.gov/repo.git
 
 **IMPORTANT NOTE**: Our current git servers generally respond with this prompt:
 
 	Username for https://user@our-server.gov/repo.git/info/refs?service=git-upload-pack: 
 
-**Just press ENTER to skip this prompt**, which will be followed by a different username/password prompt, that actually works:
+**Just press ENTER to skip this prompt**, which will be followed by a different username/password prompt (which actually works):
 
 	Username: user
 	Password: 
-
-

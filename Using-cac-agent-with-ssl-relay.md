@@ -1,6 +1,8 @@
-# Using cac-agent with Java SSL-Relay
+Using cac-tls-relay
+================
 
-## Motivation
+Motivation
+----------------
 
 While setting up `jgit` has allowed us to use CAC protected git repositories,
 similar work must be repeated when using CAC protected mvn repositories.
@@ -13,10 +15,19 @@ Since, we already have CAC working with Java, we decided to create a network
 tunnel/port forwarder/relay. It turns out that creating a relay in Java
 is pretty simple.
 
-## Details
 
-`cac-aware-ssl-relay-jar-with-dependencies.jar` is a simple network relay.
-It uses entries in `agent.properties` with the `relay.` prefix to configure each relay. 
+Configuring cac-tls-relay
+----------------
+
+cac-tls-relay is configured through the `agent.properties` file:
+
+	# Windows
+	%USERPROFILE%\.moesol\cac-agent\agent.properties
+
+	# Linux
+	~/.moesol/cac-agent/agent.properties
+
+Within `agent.properties`, we define relay bindins with the `relay.` prefix. 
 The rest of the property name is the `bindHostname:bindPort`. The value
 of the property is the `targetHostname:targetPort` to relay/forward to.
 
@@ -27,72 +38,68 @@ For example, suppose you have four CAC protected services:
 3. `https://cac-required.docker.server.org`
 4. `https://cac-required.npm.server.org`
 
-You would add the following to your `/etc/hosts` file
+You would add the following to your operating systems' `hosts` file (`/etc/hosts` in Linux, and `C:\Windows\System32\drivers\etc\hosts` in Windows):
 
-```
-127.0.0.1 git-local
-127.0.0.2 mvn-local
-127.0.0.3 docker-local
-127.0.0.4 npm-local
-```
+	127.0.0.5 git-local
+	127.0.0.6 mvn-local
+	127.0.0.7 docker-local
+	127.0.0.8 npm-local
 
-Then in your `agent.properties` you would add
+Then you would add the following to your `agent.properties`:
 
-```
-relay.git-local\:9090=cac-required.git.server.org:443
-relay.mvn-local\:9090=cac-required.mvn.server.org:443
-relay.docker-local\:9090=cac-required.docker.server.org:443
-relay.npm-local\:9090=cac-required.npm.server.org:443
-```
+	relay.git-local\:9090=cac-required.git.server.org:443
+	relay.mvn-local\:9090=cac-required.mvn.server.org:443
+	relay.docker-local\:9090=cac-required.docker.server.org:443
+	relay.npm-local\:9090=cac-required.npm.server.org:443
 
-Note that the `\:` is required to prevent the Java properties parser from using just
+**NOTE**: The `\:` is required to prevent the Java properties parser from using just
 `relay.git-local` as the key instead of what we need which is `relay.git-local:9090`.
 
-Next, you would run 
+With this configuration (and `cac-tls-relay` running), you would see cac-tls-relay listening on port 9090.
+HTTP requests sent to this port are routed according to requested hostname.
 
-```
-java -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar
-```
+So, if you submit a curl command to `http://git-local:9090/`, cac-tls-relay will read "git-local:9090"
+from the request headers, and relay the request to `https://cac-required.git.server.org` (after applying a CAC-enabled TLS wrapper). 
 
-Now, you can point your development tools at your local ports:
 
-```
-git remote add relay http://git-local:9090/same/path/as/without/relay/project.git
-```
+Locating the Executable Jar
+----------------
 
-Running fetch as shown below will `git fetch` from the CAC protected server.
-Note: Be sure the relay is running before you fetch.
+If you built cac-agent from source, you'll find the cac-tls-relay executable jar here:
 
-```
-git fetch relay
-```
+	./cac-tls-relay/target/cac-tls-relay.jar
 
-The above will trigger the Swing user interface to prompt for you PIN. You may also have to login
-using the username and password you have setup on your git server (but that can be one-time
-if you have setup git to cache usernames and passwords). And, then it will fetch from the CAC
-protected server.
+Alternatively, you can download this directly from the releases page on GitHub.
 
-Similarly, setup your maven repository to use `http://mvn-local:9090/same/path/as/without/relay`.
-Now, the next mvn download triggered will be through the relay and prompt you for your PIN
-if it needs it. Any downloads will be downloaded from the CAC protected server after the ssl-relay
-has presented the server with your CAC identity and validated it.
 
-## SSL Server
+Executing cac-tls-relay
+----------------
 
-You can make the `relay` serve SSL sockets by adding `sslRelay` prefixed properties in
-in your `agent.properties`:
+The Now we can simply call the cac-agent jar as if it were the jgit executable:
 
-```
-sslRelay.docker-local\:8443=cac-required.git.server.org:443
-```
+	# All excutions take this form:
+	java -jar cac-jgit.jar <git commands>
 
-But then, you must configure a SSL key for the server. Below, a self-signed key was configured
-into `certs/me.p12`, with the java default key store password. Adding these options to the `java`
-command when starting the relay configures the key:
+	# For example:
+	java -jar cac-jgit.jar clone https://our-server.gov/repo.git
 
-```
-  java \
-    -Djavax.net.ssl.keyStoreType=pkcs12 \
-    -Djavax.net.ssl.keyStore=certs/me.p12 \
-    "$@" -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar; 
-```
+
+
+Example URL for Git
+----------------
+
+You could use the standard (non-CAC) git command line to clone through the relay via:
+
+	git remote clone http://git-local:9090/same/path/as/without/relay/project.git
+
+This will trigger the Swing user interface to prompt for you PIN.
+
+
+Local TLS (Local HTTPS)
+----------------
+
+By default, all cac-tls-relay listens for non-tls (non-HTTPS) requests.
+
+See [Using Local TLS (Local HTTPS) with cac-tls-relay](Using-local-tls-with-tls-relay.md)
+to add encryption between client app and the TLS relay.
+
