@@ -96,3 +96,24 @@ command when starting the relay configures the key:
     -Djavax.net.ssl.keyStore=certs/me.p12 \
     "$@" -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar; 
 ```
+
+If you want to auto-restart the ssl relay after an error you can use this short bash script:
+
+```
+#!/bin/bash
+
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+
+function ctrl_c() {
+        echo "** Trapped CTRL-C"
+	exit 0
+}
+
+while true; do
+  java \
+    -Djavax.net.ssl.keyStoreType=pkcs12 \
+    -Djavax.net.ssl.keyStore=certs/me.p12 \
+    "$@" -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar; 
+done
+```
