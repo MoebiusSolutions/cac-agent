@@ -99,10 +99,7 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			File configFile = new File(Config.computeProfileFolder(), "pkcs11.cfg");
 			String configName = configFile.getAbsolutePath();
 			if (configFile.exists()) {
-				Provider provider = new sun.security.pkcs11.SunPKCS11(configName);
-				Security.addProvider(provider);
-				providers.add(provider);
-				LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
+				addPkcs1ProviderFromFile(configName);
 			} else {
 				String message = "Not found: " + configName;
 				String title = "PKCS#11 Configuration Not Loaded";
@@ -113,7 +110,6 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			chooser.hideBusy();
 		}
 	}
-
 	private void addExtraProviders() {
 		/*
 		 * Optionally, look for more pcks11.{n}.cfg files. This allows you to install
@@ -130,11 +126,14 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			if (!extraConfigFile.exists()) {
 				break;
 			}
-			Provider provider = new sun.security.pkcs11.SunPKCS11(extraConfigFile.getAbsolutePath());
-			Security.addProvider(provider);
-			providers.add(provider);
-			LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
+			addPkcs1ProviderFromFile(extraConfigFile.getAbsolutePath());
 		}
+	}
+	private void addPkcs1ProviderFromFile(String configName) {
+		Provider provider = new sun.security.pkcs11.SunPKCS11(configName);
+		Security.addProvider(provider);
+		providers.add(provider);
+		LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
 	}
 
 	public static void main(String[] args) {
