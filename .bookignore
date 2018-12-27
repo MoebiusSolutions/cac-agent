@@ -1,1 +1,10 @@
+.git
+.bookignore
+.circleci
+.gitattributes
+.gitignore
 src
+certs
+docs
+*.sh
+pom.xml
