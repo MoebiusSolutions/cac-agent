@@ -7,6 +7,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.ProviderException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -227,7 +228,15 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	@Override
 	public PrivateKey getPrivateKey(String alias) {
 		try {
-			return (PrivateKey) getKeyStore().getKey(alias, null);
+			try {
+				return (PrivateKey) getKeyStore().getKey(alias, null);
+			} catch (ProviderException e) {
+				// One time try to repair Token has been removed.
+				synchronized (keyStoreLock) {
+					keyStore = null;
+				}
+				return (PrivateKey) getKeyStore().getKey(alias, null);
+			}
 		} catch (Exception e) {
 			throw reportAndConvert(e);
 		}

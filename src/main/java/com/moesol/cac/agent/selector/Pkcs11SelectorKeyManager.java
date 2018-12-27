@@ -92,7 +92,6 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 		return new KeyStore.CallbackHandlerProtection(handler);		
 	}
 	
-	@SuppressWarnings("restriction")
 	private void setUpProvider() {
 		chooser.showBusy("Initializing PKCS#11...");
 		try {
@@ -129,6 +128,7 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			addPkcs1ProviderFromFile(extraConfigFile.getAbsolutePath());
 		}
 	}
+	@SuppressWarnings("restriction")
 	private void addPkcs1ProviderFromFile(String configName) {
 		Provider provider = new sun.security.pkcs11.SunPKCS11(configName);
 		Security.addProvider(provider);
