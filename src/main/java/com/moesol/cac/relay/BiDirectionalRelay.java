@@ -38,7 +38,7 @@ public class BiDirectionalRelay {
 			try {
 				copyStream(clientSocket, serverSocket);
 			} finally {
-				// is is already closed by now
+				// clientSocket already closed by now
 				maybeClose(serverSocket);
 			}
 		} catch (IOException e) {
@@ -51,7 +51,7 @@ public class BiDirectionalRelay {
 			try {
 				copyStream(serverSocket, clientSocket);
 			} finally {
-				// toServer is already closed by now
+				// serverSocket is already closed by now
 				maybeClose(clientSocket);
 			}
 		} catch (IOException e) {
@@ -78,8 +78,8 @@ public class BiDirectionalRelay {
 				os.write(buffer, 0, len);
 			}
 		} catch (SSLException e) {
-			LOGGER.log(Level.WARNING, "SSL issue, exiting", e);
-			System.exit(1);
+			LOGGER.log(Level.WARNING, "SSL issue", e);
+			// Calling System.exit(1) here works if you have an out loop running java.
 		} catch (SocketException e) {
 			if ("Socket closed".equals(e.getMessage())) {
 				LOGGER.log(Level.INFO, "Done: {0} to {1}", new Object[] { src, dst });
