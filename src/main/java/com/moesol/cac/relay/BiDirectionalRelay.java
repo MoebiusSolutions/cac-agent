@@ -30,6 +30,20 @@ public class BiDirectionalRelay {
 		READ_REPAIRED,
 		WRITE_REPAIRED;
 	}
+	/**
+	 * Repairs a socket by closing down the streams using it and
+	 * then reconnecting. This is made a bit more tricky because
+	 * the reader and writers must use the same socket when
+	 * we are relaying a request/response protocol like https.
+	 * To add to this there are two threads, one for reading
+	 * and one for writing, so the repair methods must be
+	 * synchronized. We use a state machine to track if the
+	 * read or write side repairs first. Once both sides have
+	 * tried to repair we return to the START state. Finally,
+	 * when ever the socker field has been repaired we need
+	 * to close the InputStream or OutputStream and re-open
+	 * them from the socket.
+	 */
 	private class RepairableSocket {
 		private Socket socket;
 		private RepairState state = RepairState.START;
