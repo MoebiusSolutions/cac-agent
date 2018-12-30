@@ -199,4 +199,10 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		}
 	}
 
+	@Override
+	public void promptForCardInsertion(String error) {
+		String msg = error + "\n\nInsert Smartcard";
+		JOptionPane.showMessageDialog(null, msg);
+	}
+
 }

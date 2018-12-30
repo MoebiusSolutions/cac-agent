@@ -1,6 +1,7 @@
 package com.moesol.cac.agent.selector;
 
 import java.io.Console;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Scanner;
 import java.util.prefs.Preferences;
@@ -68,6 +69,18 @@ public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 			return new char[0];
 		}
 		return cons.readPassword("PIN: ");
+	}
+
+	@Override
+	public void promptForCardInsertion(String error) {
+		System.out.println(error);
+		System.out.println("Insert Smartcard, then press Enter");
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			System.err.println("Failed to query for Enter");
+			System.exit(1);
+		}
 	}
 	
 }
