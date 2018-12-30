@@ -26,10 +26,12 @@ import javax.swing.JPasswordField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	private final IdentityKeyListProvider provider;
 	private String choosenAlias;
+	private Timer maybeShowBusy = new Timer(1000, e -> showBusyNow());
 	private JDialog busy;
 	
 	public SwingIdentityKeyChooser(IdentityKeyListProvider provider) {
@@ -62,12 +64,20 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 				JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
 				busy = pane.createDialog("CAC");
 				busy.setModal(false);
-				busy.setVisible(true);
 			}
 		});
+		
+		maybeShowBusy.setInitialDelay(1000);
+		maybeShowBusy.setRepeats(false);
+		maybeShowBusy.start();
+	}
+	
+	public void showBusyNow() {
+		busy.setVisible(true);
 	}
 
 	public void hideBusy() {
+		maybeShowBusy.stop();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
