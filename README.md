@@ -33,7 +33,7 @@ Quick Start
 Setup cac-agent (required for **cac-tls-relay** and **cac-jgit**):
 
 1. [Compile cac-agent](Compile-cac-agent.md)
-	* ... or download a binary release from the [GitHub releases](https://github.com/MoebiusSolutions/cac-agent/releases).
+	* ... or download from [GitHub releases](https://github.com/MoebiusSolutions/cac-agent/releases).
 2. [Create the cac-agent Truststore](Create-the-cac-agent-Truststore.md)
 3. Configure
 	* [Configure cac-agent for Linux](Configure-cac-agent-for-Linux.md)
