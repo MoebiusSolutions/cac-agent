@@ -98,3 +98,25 @@ By default, all cac-tls-relay listens for non-tls (non-HTTPS) requests.
 See [Using Local TLS (Local HTTPS) with cac-tls-relay](Using-local-tls-with-tls-relay.md)
 to add encryption between client app and the TLS relay.
 
+
+Auto-Restart
+----------------
+
+If you want to auto-restart the ssl relay after an error you can use this short bash script:
+
+	#!/bin/bash
+	
+	# trap ctrl-c and call ctrl_c()
+	trap ctrl_c INT
+	
+	function ctrl_c() {
+		echo "** Trapped CTRL-C"
+		exit 0
+	}
+	
+	while true; do
+	  java \
+	    -Djavax.net.ssl.keyStoreType=pkcs12 \
+	    -Djavax.net.ssl.keyStore=certs/me.p12 \
+	    "$@" -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar; 
+	done

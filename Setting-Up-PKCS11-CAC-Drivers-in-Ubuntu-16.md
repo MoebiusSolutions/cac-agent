@@ -1,6 +1,8 @@
 Setting Up PKCS11 CAC Drivers in Ubuntu 16
 ================
 
+Before you can use `cac-agent`, you may need to setup your machine to use a CAC (or smart) card.
+If you already have your CAC card working with Firefox, then you can skip this section. 
 
 Links
 ----------------
@@ -8,7 +10,7 @@ Links
 These are links from DISA that helped with Firefox:
 
 * [CAC - Linux](http://iase.disa.mil/pki-pke/getting_started/Pages/linux.aspx)
-	* [CAC - Getting Started with Firefox on Linux](http://iase.disa.mil/pki-pke/getting_started/Pages/linux-firefox.aspx)
+* [CAC - Getting Started with Firefox on Linux](http://iase.disa.mil/pki-pke/getting_started/Pages/linux-firefox.aspx)
 
 This is a link from Ubuntu that helped with Chrome:
 
@@ -18,13 +20,19 @@ This is a link from Ubuntu that helped with Chrome:
 Which Middleware Library?
 ----------------
 
-Coolkey
+## Coolkey
 
 * Stable in firefox/chrome (unlike OpenSC)
 * Works with all government-issued CACs we've tried
 * Doesn't work with any retail CACs we've tried (PIVkey, Yubikey, etc)
 
-OpenSC
+## SafeNet
+
+* Stable in firefox/chrome
+* Works with Gemalto and Yubikey.
+* For Ubuntu 18, you may need to force it to use `libcrypto.so -> libcrypto.so.1.0.0` instead of `libcrypto.so.1.1.0`
+
+## OpenSC
 
 * Expected to be the future of CAC support for RHEL
 * Available on Windows too
@@ -112,3 +120,7 @@ library=/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so
 name="Yubikey"
 slotListIndex=1 
 ```
+
+Note that multiple slots are now supported. See `Configuring Support for Multiple Slots`
+in [Configure-cac-agent-for-Linux](./Configure-cac-agent-for-Linux.md#configuring-support-for-multiple-slots).
+

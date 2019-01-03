@@ -83,9 +83,13 @@ public class HookedHttpClientConnectionFactory extends HttpClientConnectionFacto
 			return null;
 		}
 		
+		char[] twp = System.getProperty("javax.net.ssl.trustStorePassword", "").toCharArray();
+		if (twp.length == 0) {
+			twp = null; // Backward compatible with prior version, which always used null.
+		}
 		try (FileInputStream trust = new FileInputStream(trustStoreFile)) {
 			KeyStore r = KeyStore.getInstance(KeyStore.getDefaultType());
-			r.load(trust, null);
+			r.load(trust, twp);
 			return r;
 		}
 	}
