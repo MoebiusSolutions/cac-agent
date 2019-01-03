@@ -44,3 +44,10 @@ jobs:
       - store_test_results:
           path: ~/junit
       - run: mvn -P circleci integration-test
+
+      - store_artifacts:
+          path: ~/build/cac-jgit/target/cac-jgit.jar
+          destination: cac-jgit.jar
+      - store_artifacts:
+          path: ~/build/cac-tls-relay/target/cac-tls-relay.jar
+          destination: cac-tls-relay.jar
