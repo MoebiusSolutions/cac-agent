@@ -9,7 +9,7 @@ This package has the following major components:
 * **cac-ssl-relay**: A local daemon that can be used to "relay" traffic to remote, CAC-protected endpoints
 	* Client applications can access the remote, CAC-protected services without any direct CAC integration
 	* When you connect through this daemon, you're only prompted for a CAC PIN on the first request
-	* This works great with private SSL-protected repos including **Git**, **Maven**, **NPM**, and **Docker**
+	* This works great with private SSL-protected web services including **Git**, **Maven**, **NPM**, and **Docker**
 		* In the case of Docker, you'll have to make sure that you [setup local SSL](Using-local-ssl-with-ssl-relay.md) or else the server can get confused by the transition between HTTP and HTTPS
 
 * **cac-jgit**: A version of jGit with bundled CAC support
