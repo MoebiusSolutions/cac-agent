@@ -89,7 +89,7 @@
 	<modules>
 		<module>cac-agent</module>
 		<module>cac-jgit</module>
-		<module>cac-tls-relay</module>
+		<module>cac-ssl-relay</module>
 	</modules>
 
 	<profiles>

@@ -1,4 +1,4 @@
-Using cac-tls-relay
+Using cac-ssl-relay
 ================
 
 Motivation
@@ -16,10 +16,10 @@ tunnel/port forwarder/relay. It turns out that creating a relay in Java
 is pretty simple.
 
 
-Configuring cac-tls-relay
+Configuring cac-ssl-relay
 ----------------
 
-cac-tls-relay is configured through the `agent.properties` file:
+cac-ssl-relay is configured through the `agent.properties` file:
 
 	# Windows
 	%USERPROFILE%\.moesol\cac-agent\agent.properties
@@ -55,29 +55,29 @@ Then you would add the following to your `agent.properties`:
 **NOTE**: The `\:` is required to prevent the Java properties parser from using just
 `relay.git-local` as the key instead of what we need which is `relay.git-local:9090`.
 
-With this configuration (and `cac-tls-relay` running), you would see cac-tls-relay listening on port 9090.
+With this configuration (and `cac-ssl-relay` running), you would see cac-ssl-relay listening on port 9090.
 HTTP requests sent to this port are routed according to requested hostname.
 
-So, if you submit a curl command to `http://git-local:9090/`, cac-tls-relay will read "git-local:9090"
-from the request headers, and relay the request to `https://cac-required.git.server.org` (after applying a CAC-enabled TLS wrapper). 
+So, if you submit a curl command to `http://git-local:9090/`, cac-ssl-relay will read "git-local:9090"
+from the request headers, and relay the request to `https://cac-required.git.server.org` (after applying a CAC-enabled SSL wrapper). 
 
 
 Locating the Executable Jar
 ----------------
 
-If you built cac-agent from source, you'll find the cac-tls-relay executable jar here:
+If you built cac-agent from source, you'll find the cac-ssl-relay executable jar here:
 
-	./cac-tls-relay/target/cac-tls-relay.jar
+	./cac-ssl-relay/target/cac-ssl-relay.jar
 
 Alternatively, you can download this directly from the releases page on GitHub.
 
 
-Executing cac-tls-relay
+Executing cac-ssl-relay
 ----------------
 
-We can simply execute the cac-tls-relay jar to open the relay:
+We can simply execute the cac-ssl-relay jar to open the relay:
 
-	java -jar cac-tls-relay.jar
+	java -jar cac-ssl-relay.jar
 
 The first time each service is hit, the user will be prompted for their CAC PIN.
 
@@ -90,13 +90,13 @@ You could use the standard (non-CAC) git command to clone through the relay via:
 	git remote clone http://git-local:9090/same/path/as/without/relay/project.git
 
 
-Local TLS (Local HTTPS)
+Local SSL (Local HTTPS)
 ----------------
 
-By default, all cac-tls-relay listens for non-tls (non-HTTPS) requests.
+By default, all cac-ssl-relay listens for non-ssl (non-HTTPS) requests.
 
-See [Using Local TLS (Local HTTPS) with cac-tls-relay](Using-local-tls-with-tls-relay.md)
-to add encryption between client app and the TLS relay.
+See [Using Local SSL (Local HTTPS) with cac-ssl-relay](Using-local-ssl-with-ssl-relay.md)
+to add encryption between client app and the SSL relay.
 
 
 Auto-Restart

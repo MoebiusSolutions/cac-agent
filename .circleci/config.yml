@@ -49,5 +49,5 @@ jobs:
           path: ~/repo/cac-jgit/target/cac-jgit.jar
           destination: cac-jgit.jar
       - store_artifacts:
-          path: ~/repo/cac-tls-relay/target/cac-tls-relay.jar
-          destination: cac-tls-relay.jar
+          path: ~/repo/cac-ssl-relay/target/cac-ssl-relay.jar
+          destination: cac-ssl-relay.jar

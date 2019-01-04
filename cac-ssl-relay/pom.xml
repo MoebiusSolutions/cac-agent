@@ -6,10 +6,10 @@
 		<artifactId>cac-agent-parent</artifactId>
 		<version>1.12-SNAPSHOT</version>
 	</parent>
-	<artifactId>cac-tls-relay</artifactId>
+	<artifactId>cac-ssl-relay</artifactId>
 	<packaging>jar</packaging>
-	<name>cac-tls-relay</name>
-	<description>A daemon that transparently wraps requests with TLS using CAC-based PKI</description>
+	<name>cac-ssl-relay</name>
+	<description>A daemon that transparently wraps requests with SSL using CAC-based PKI</description>
 
 	<dependencies>
 		<dependency>
