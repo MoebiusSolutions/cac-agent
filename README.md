@@ -1,4 +1,4 @@
-cac-agent (Common Access Card (CAC) integration for Developers)
+cac-agent (Common Access Card Integration for Developers)
 ================
 
 Overview
