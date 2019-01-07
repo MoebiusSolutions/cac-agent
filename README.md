@@ -19,7 +19,7 @@ This package has the following major components:
 * **cac-agent**: A generalized CAC integration for Java
 	* You can use this libary to add a Swing-popup or CLI-prompt to select/use a CAC certificate for SSL (HTTPS) operations
 	* The apps above depend upon this library
-	* This library is available from the [cac-agent.mvn Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn.git)
+	* This library is available from the [cac-agent Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn.git)
 
 
 Build Status
