@@ -25,14 +25,10 @@
 
 	<build>
 		<plugins>
+			<!-- Build an uber-jar -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.0.0</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
 				<executions>
 					<execution>
 						<id>make-assembly</id>
@@ -41,8 +37,15 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<finalName>${project.artifactId}</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
+							<appendAssemblyId>true</appendAssemblyId>
+							<!--
+								Specify the "assmembly descriptor"
+								so that maven doesn't choke when deploying to
+								a maven repo.
+							-->
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
 							<archive>
 								<manifest>
 									<mainClass>com.moesol.cac.relay.Main</mainClass>
