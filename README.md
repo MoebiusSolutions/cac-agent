@@ -6,19 +6,20 @@ Overview
 
 This package has the following major components:
 
-* **cac-ssl-relay**: A local daemon that can be used to "relay" traffic to remote, CAC-protected endpoints
+* **cac-ssl-relay**: A local daemon that transparently wraps traffic with a CAC-protected TLS tunnel
 	* Client applications can access the remote, CAC-protected services without any direct CAC integration
 	* When you connect through this daemon, you're only prompted for a CAC PIN on the first request
 	* This works great with private SSL-protected web services including **Git**, **Maven**, **NPM**, and **Docker**
 		* In the case of Docker, you'll have to make sure that you [setup local SSL](Using-local-ssl-with-ssl-relay.md) or else the server can get confused by the transition between HTTP and HTTPS
 
-* **cac-jgit**: A version of jGit with bundled CAC support
+* **cac-jgit**: A version of the jGit CLI with bundled CAC support
 	* This works as a standalone replacement for command line Git, without the need for **cac-ssl-relay**
 	* Note that jGit is missing a handful of convenience commands, such as `git pull` (instead you have to run `git fetch` then `git merge ...` explicitly).
 
 * **cac-agent**: A generalized CAC integration for Java
 	* You can use this libary to add a Swing-popup or CLI-prompt to select/use a CAC certificate for SSL (HTTPS) operations
-	* The aforementioned apps were developed on top of this
+	* The apps above depend upon this library
+	* This library is available from the [cac-agent.mvn Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn.git)
 
 
 Build Status
@@ -32,8 +33,9 @@ Quick Start
 
 Setup cac-agent (required for **cac-ssl-relay** and **cac-jgit**):
 
-1. [Compile cac-agent](Compile-cac-agent.md)
-	* ... or download from [GitHub releases](https://github.com/MoebiusSolutions/cac-agent/releases).
+1. Download the the latest binary from the [GitHub Maven repo](https://github.com/ryankenney/cac-agent.mvn/tree/master/com/github/MoebiusSolutions).
+	* **cac-ssl-relay**: Get the `cac-ssl-relay-*-jar-with-dependencies.jar` file
+	* **cac-jgit**: Get the `cac-jgit-*-jar-with-dependencies.jar` file
 2. [Create the cac-agent Truststore](Create-the-cac-agent-Truststore.md)
 3. Configure
 	* [Configure cac-agent for Linux](Configure-cac-agent-for-Linux.md)
