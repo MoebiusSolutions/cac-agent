@@ -53,3 +53,9 @@ Other Notes
 * [Setting Up PKCS11 CAC Drivers in Ubuntu 16](Setting-Up-PKCS11-CAC-Drivers-in-Ubuntu-16.md)
 * [Profile Support](Profile-Support.md) (configurations per remote server)
 * [Using cac-agent with Older JGit Releases](Using-cac-agent-with-Older-JGit-Releases.md)
+
+
+Notes to cac-agent Developers
+----------------
+
+* [Tagging/Deploying a cac-agent Release](Tagging-Deploying-a-cac-agent-Release.md)
