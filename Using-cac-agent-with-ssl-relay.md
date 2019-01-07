@@ -65,11 +65,9 @@ from the request headers, and relay the request to `https://cac-required.git.ser
 Locating the Executable Jar
 ----------------
 
-If you built cac-agent from source, you'll find the cac-ssl-relay executable jar here:
+You should have a version of this executable jar (available [here](https://github.com/MoebiusSolutions/cac-agent.mvn/tree/master/com/github/MoebiusSolutions)):
 
-	./cac-ssl-relay/target/cac-ssl-relay.jar
-
-Alternatively, you can download this directly from the releases page on GitHub.
+	cac-ssl-relay-XXX-jar-with-dependences.jar
 
 
 Executing cac-ssl-relay
@@ -77,7 +75,7 @@ Executing cac-ssl-relay
 
 We can simply execute the cac-ssl-relay jar to open the relay:
 
-	java -jar cac-ssl-relay.jar
+	java -jar cac-ssl-relay-XXX-jar-with-dependences.jar
 
 The first time each service is hit, the user will be prompted for their CAC PIN.
 
@@ -118,5 +116,5 @@ If you want to auto-restart the ssl relay after an error you can use this short 
 	  java \
 	    -Djavax.net.ssl.keyStoreType=pkcs12 \
 	    -Djavax.net.ssl.keyStore=certs/me.p12 \
-	    "$@" -jar target/cac-aware-ssl-relay-jar-with-dependencies.jar; 
+	    "$@" -jar cac-ssl-relay-XXX-jar-with-dependences.jar; 
 	done

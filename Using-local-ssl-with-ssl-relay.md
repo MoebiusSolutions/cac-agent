@@ -61,5 +61,5 @@ to find it's own certificate/key. We point to the `.pfx` file at when launching 
 	java \
 	  -Djavax.net.ssl.keyStoreType=pkcs12 \
 	  -Djavax.net.ssl.keyStore=~/.moesol/cac-agent/cac-ssl-relay.pfx \
-	  jar target/cac-ssl-relay.jar
+	  jar cac-ssl-relay-XXX-jar-with-dependencies.jar
 

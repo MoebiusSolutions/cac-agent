@@ -34,8 +34,8 @@ Quick Start
 Setup cac-agent (required for **cac-ssl-relay** and **cac-jgit**):
 
 1. Download the the latest binary from the [GitHub Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn/tree/master/com/github/MoebiusSolutions).
-	* **cac-ssl-relay**: Get the `cac-ssl-relay-*-jar-with-dependencies.jar` file
-	* **cac-jgit**: Get the `cac-jgit-*-jar-with-dependencies.jar` file
+	* **cac-ssl-relay**: Get the `cac-ssl-relay-XXX-jar-with-dependencies.jar` file
+	* **cac-jgit**: Get the `cac-jgit-XXX-jar-with-dependencies.jar` file
 2. [Create the cac-agent Truststore](Create-the-cac-agent-Truststore.md)
 3. Configure
 	* [Configure cac-agent for Linux](Configure-cac-agent-for-Linux.md)
