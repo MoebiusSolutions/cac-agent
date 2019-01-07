@@ -63,7 +63,7 @@ to do this to your Maven proxy server, or you local `settings.xml` file.
 
 Here's the repo I added (which is a recommended superset of Maven Central):
 
-	http://jcenter.bintray.com/
+	https://jcenter.bintray.com/
 
 
 Tagging/Deploying a Release
