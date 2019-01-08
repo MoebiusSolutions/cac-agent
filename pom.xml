@@ -54,6 +54,9 @@
 				<version>3.8.0</version>
 				<configuration>
 					<release>9</release>
+					<compilerArgs>
+						<arg>--add-modules=java.smartcardio</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 
