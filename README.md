@@ -53,7 +53,7 @@ Other Notes
 * [Text-Only Mode](docs/Text-Only-Mode.md) (instead of a the graphical interface)
 * [Storing Username/Password](docs/Storing-Username-Password.md) (skipping prompt)
 * [Setting Up PKCS11 CAC Drivers in Ubuntu 16](docs/Setting-Up-PKCS11-CAC-Drivers-in-Ubuntu-16.md)
-* [Profile Support](docs/Profile-Support.md) (configurations per remote server)
+* [Profile Support](docs/Profile-Support.md) (multiple cac-agent configurtions)
 * [Using cac-agent with Older JGit Releases](docs/Using-cac-agent-with-Older-JGit-Releases.md)
 
 
