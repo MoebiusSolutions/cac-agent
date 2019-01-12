@@ -57,4 +57,67 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>rpm</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<version>2.2.0</version>
+						<executions>
+							<execution>
+								<id>attached-rpm</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attached-rpm</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<name>${project.artifactId}</name>
+							<group>Applications</group>
+							<targetOS>Linux</targetOS>
+							<prefix>/usr/local</prefix>
+							<release>${build.number}</release>
+							<defaultDirmode>755</defaultDirmode>
+							<defaultFilemode>644</defaultFilemode>
+							<defaultUsername>root</defaultUsername>
+							<defaultGroupname>root</defaultGroupname>
+							<needarch>noarch</needarch>
+							<defineStatements>
+								<defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+								<defineStatement>__jar_repack 0</defineStatement>
+							</defineStatements>
+							<mappings>
+								<mapping>
+									<directory>/usr/local/bin</directory>
+									<sources>
+										<source>
+											<location>src/main/shell/cac-git</location>
+										</source>
+									</sources>
+									<filemode>755</filemode>
+								</mapping>
+								<mapping>
+									<directory>/usr/local/lib/cac-git</directory>
+									<sources>
+										<source>
+											<location>target/${project.artifactId}-${project.version}-jar-with-dependencies.jar</location>
+										</source>
+									</sources>
+								</mapping>
+							</mappings>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+
+		</profile>
+	</profiles>
 </project>

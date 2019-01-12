@@ -25,4 +25,4 @@ RDIR="$( dirname "$SOURCE" )"
 PROJECT_BIN_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 PROJECT_DIR="$(dirname "$PROJECT_BIN_DIR")"
 
-${JAVA} -jar /usr/local/lib/cac-git/cac-aware-jgit-jar-with-dependencies.jar ${1+"$@"}
+${JAVA} -jar /usr/local/lib/cac-git/cac-jgit-*-jar-with-dependencies.jar ${1+"$@"}
