@@ -1,50 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>usn.otm</groupId>
-	<artifactId>cac-agent</artifactId>
+	<groupId>com.github.MoebiusSolutions</groupId>
+	<artifactId>cac-agent-parent</artifactId>
 	<version>1.12-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>cac-agent</name>
-	<description>Builds a javaagent jar that hooks SSL in Java
-	to use Windows-MY keystore by default, and posts a Swing
-	UI to pick which key you want to use.</description>
+	<packaging>pom</packaging>
+	<name>cac-agent-parent</name>
+	<description>Root POM for cac-agent</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<build.number>0</build.number>
+
+		<!--
+			The server entry in settings.xml containing the credentials 
+			to use with when pushing maven artifacts to github
+			(com.github.github:site-maven-plugin below).
+		-->
+		<github.global.server>github</github.global.server>
+
+		<!-- Convenience variables -->
+		<github-owner>MoebiusSolutions</github-owner>
+		<github-repo>cac-agent</github-repo>
+		<temp-mvn-repo>${project.build.directory}/mvn-repo</temp-mvn-repo>
 	</properties>
 
 	<scm>
-		<connection>scm:git:https://github.com/MoebiusSolutions/cac-agent.git</connection>
-		<developerConnection>scm:git:https://github.com/MoebiusSolutions/cac-agent.git</developerConnection>
-		<tag>HEAD</tag>
+		<connection>scm:git:git@github.com:${github-owner}/${github-repo}.git</connection>
+		<developerConnection>scm:git:git@github.com:${github-owner}/${github-repo}.git</developerConnection>
+		<url>https://github.com/${github-owner}/${github-repo}/tree/${project.scm.tag}</url>
+		<tag>master</tag>
 	</scm>
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.9.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jgit</groupId>
-			<artifactId>org.eclipse.jgit.pgm</artifactId>
-			<version>4.8.0.201706111038-r</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jasypt</groupId>
-			<artifactId>jasypt</artifactId>
-			<version>1.9.0</version>
-		</dependency>
-	</dependencies>
+	<distributionManagement>
+		<!--
+			A filesystem repo stored in the target directory
+		
+			By letting maven deploy here, we can follow-up with the github plugin
+			to upload the artifacts. (GitHub doens't support the Maven deploy protocol.)
+		 --> 
+		<repository>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${temp-mvn-repo}</url>
+		</repository>
+	</distributionManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.9.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jgit</groupId>
+				<artifactId>org.eclipse.jgit.pgm</artifactId>
+				<version>4.8.0.201706111038-r</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jasypt</groupId>
+				<artifactId>jasypt</artifactId>
+				<version>1.9.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
@@ -53,13 +82,14 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
+					<!-- TODO: Do we need this with "maven.compiler.source.*" variables defined above? -->
 					<release>9</release>
+					<!-- With JDK9, we have to explicitly add java.smartcardio module to module graph --> 
 					<compilerArgs>
 						<arg>--add-modules=java.smartcardio</arg>
 					</compilerArgs>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -77,55 +107,23 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.2</version>
+				<version>2.5.3</version>
+				<configuration>
+					<!-- Specify a custom release tag naming convention -->
+					<tagNameFormat>cac-agent-@{project.version}</tagNameFormat>
+				</configuration>
 				<dependencies>
+					<!--
+						Force a version of maven-scm-provider-gitexe that actually works correctly (committing to git).
+						
+						See: https://stackoverflow.com/a/20657721
+					 -->
 					<dependency>
 						<groupId>org.apache.maven.scm</groupId>
 						<artifactId>maven-scm-provider-gitexe</artifactId>
 						<version>1.9.4</version>
 					</dependency>
 				</dependencies>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.0.0</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>cac-aware-jgit</finalName>
-							<archive>
-								<manifest>
-									<mainClass>org.eclipse.jgit.pgm.JgitCac</mainClass>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cac-aware-ssl-relay</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>cac-aware-ssl-relay</finalName>
-							<archive>
-								<manifest>
-									<mainClass>com.moesol.cac.relay.Main</mainClass>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -135,8 +133,76 @@
 					<useSystemClassLoader>false</useSystemClassLoader>
 				</configuration>
 			</plugin>
+
+			<!-- Redirect "deploy" to a temporary, local directory -->
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.1</version>
+				<configuration>
+					<!-- 
+						Deploy sites files (jars for maven) to a directory on disk
+						
+						NOTE: We're writing releases and snapshots to different directories,
+						then including only releases in the github plugin config that follows. This prevents
+						snapshots from ending up in the github repo.
+					-->
+					<altReleaseDeploymentRepository>internal.repo::default::file://${temp-mvn-repo}/releases</altReleaseDeploymentRepository>
+					<altSnapshotDeploymentRepository>internal.repo::default::file://${temp-mvn-repo}/snapshots</altSnapshotDeploymentRepository>
+				</configuration>
+			</plugin>
+
+			<!-- Upload local/temporary maven repo files to github -->
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.12</version>
+				<configuration>
+					<!-- Merge new artifacts with existing repo (always true if we're pushing to a maven repo) -->
+					<merge>true</merge>
+					<!-- Git commit message -->
+					<message>Maven artifacts for ${project.artifactId}-${project.version}</message>
+					<!-- Disable webpage processing -->
+					<noJekyll>true</noJekyll>
+					<!--
+						Local directory to read from
+
+						NOTE: We only publish releases in this example.
+						Snapshots will fail with error if attempted.
+					-->
+					<outputDirectory>${temp-mvn-repo}/releases</outputDirectory>
+					<!-- Remote branch name to publish to -->
+					<branch>refs/heads/master</branch>
+					<includes>
+						<include>**/*</include>
+					</includes>
+					<!-- GitHub repo owner -->
+					<repositoryOwner>${github-owner}</repositoryOwner>
+					<!-- GitHub repo name for maven artifacts -->
+					<repositoryName>${github-repo}.mvn</repositoryName>
+				</configuration>
+				<executions>
+					<!--
+						Apply the site-maven-plugin's "site" goal to the
+						build's "deploy" phase
+					-->
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
+
+	<modules>
+		<module>cac-agent</module>
+		<module>cac-jgit</module>
+		<module>cac-ssl-relay</module>
+	</modules>
+
 	<profiles>
 		<profile>
 			<id>circleci</id>
@@ -158,65 +224,6 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>rpm</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>rpm-maven-plugin</artifactId>
-						<version>2.2.0</version>
-						<executions>
-							<execution>
-								<id>attached-rpm</id>
-								<phase>package</phase>
-								<goals>
-									<goal>attached-rpm</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<name>${project.artifactId}</name>
-							<group>Applications</group>
-							<targetOS>Linux</targetOS>
-							<prefix>/usr/local</prefix>
-							<release>${build.number}</release>
-							<defaultDirmode>755</defaultDirmode>
-							<defaultFilemode>644</defaultFilemode>
-							<defaultUsername>root</defaultUsername>
-							<defaultGroupname>root</defaultGroupname>
-							<needarch>noarch</needarch>
-							<defineStatements>
-								<defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
-								<defineStatement>__jar_repack 0</defineStatement>
-							</defineStatements>
-							<mappings>
-								<mapping>
-									<directory>/usr/local/bin</directory>
-									<sources>
-										<source>
-											<location>src/main/shell/cac-git</location>
-										</source>
-									</sources>
-									<filemode>755</filemode>
-								</mapping>
-								<mapping>
-									<directory>/usr/local/lib/cac-git</directory>
-									<sources>
-										<source>
-											<location>target/cac-aware-jgit-jar-with-dependencies.jar</location>
-										</source>
-									</sources>
-								</mapping>
-							</mappings>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-
-		</profile>
 	</profiles>
+
 </project>

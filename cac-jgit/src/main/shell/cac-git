@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [[ -n "${JAVA_HOME}" ]] && [[ -x "${JAVA_HOME}/bin/java" ]];  then
+    JAVA="${JAVA_HOME}/bin/java"
+elif type -p java; then
+    JAVA=java
+else
+    echo "Error: JAVA_HOME is not set and java could not be found in PATH." 1>&2
+    exit 1
+fi
+
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  TARGET="$(readlink "$SOURCE")"
+  if [[ $SOURCE == /* ]]; then
+    SOURCE="$TARGET"
+  else
+    PROJECT_BIN_DIR="$( dirname "$SOURCE" )"
+    SOURCE="$PROJECT_BIN_DIR/$TARGET" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  fi
+done
+RDIR="$( dirname "$SOURCE" )"
+PROJECT_BIN_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+PROJECT_DIR="$(dirname "$PROJECT_BIN_DIR")"
+
+${JAVA} -jar /usr/local/lib/cac-git/cac-jgit-*-jar-with-dependencies.jar ${1+"$@"}

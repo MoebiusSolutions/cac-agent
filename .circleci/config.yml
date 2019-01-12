@@ -18,19 +18,22 @@ jobs:
     steps:
       - checkout
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v2-dependencies-{{ checksum "pom.xml" }}
-          # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
-
-      - run: mvn dependency:go-offline
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v2-dependencies-{{ checksum "pom.xml" }}
+# Disabled caching. "dependency:go-offline" doesn't seem to work
+# with dependencies between modules being built.
+#
+#      # Download and cache dependencies
+#      - restore_cache:
+#          keys:
+#          - v2-dependencies-{{ checksum "pom.xml" }}
+#          # fallback to using the latest cache if no exact match is found
+#          - v2-dependencies-
+#
+#      - run: mvn dependency:go-offline
+#
+#      - save_cache:
+#          paths:
+#            - ~/.m2
+#          key: v2-dependencies-{{ checksum "pom.xml" }}
 
       - run:
           name: Save test results
@@ -41,3 +44,10 @@ jobs:
       - store_test_results:
           path: ~/junit
       - run: mvn -P circleci integration-test
+
+      - store_artifacts:
+          path: ~/repo/cac-jgit/target/cac-jgit.jar
+          destination: cac-jgit.jar
+      - store_artifacts:
+          path: ~/repo/cac-ssl-relay/target/cac-ssl-relay.jar
+          destination: cac-ssl-relay.jar
