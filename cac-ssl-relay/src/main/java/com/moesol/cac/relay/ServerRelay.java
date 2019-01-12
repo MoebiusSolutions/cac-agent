@@ -8,6 +8,8 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import com.moesol.cac.relay.BiDirectionalRelay.SocketSupplier;
+
 /**
  * A java based port forwarder.
  * It binds to a local bindHost:bindPort and forwards
@@ -48,8 +50,8 @@ public class ServerRelay {
 	}
 
 	private void relayTo(Socket clientSocket) throws UnknownHostException, IOException {
-		Socket serverSocket = SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
-		new BiDirectionalRelay(clientSocket, serverSocket);
+		SocketSupplier reconnect = () -> SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
+		new BiDirectionalRelay(clientSocket, reconnect.get(), reconnect);
 	}
 
 }

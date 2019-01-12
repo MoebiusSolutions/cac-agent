@@ -42,7 +42,7 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	implements X509KeyManager, IdentityKeyListProvider 
 {
 	private String choosenAlias = null;
-	private final Object keyStoreLock = new Object();
+	protected final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
 	protected IdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
 
@@ -98,6 +98,11 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 				reportAndConvert(e);
 			}
 			return keyStore;
+		}
+	}
+	public void setKeyStore(KeyStore ks) {
+		synchronized (keyStoreLock) {
+			keyStore = ks;
 		}
 	}
 

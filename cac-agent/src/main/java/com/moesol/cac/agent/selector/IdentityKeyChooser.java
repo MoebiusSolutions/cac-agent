@@ -8,4 +8,5 @@ public interface IdentityKeyChooser {
 	void showBusy(String string);
 	void hideBusy();
 	char[] promptForPin(String prompt);
+	void promptForCardInsertion(String error);
 }

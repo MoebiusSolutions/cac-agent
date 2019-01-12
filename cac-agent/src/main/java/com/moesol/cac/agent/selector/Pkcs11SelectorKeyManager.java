@@ -3,12 +3,10 @@ package com.moesol.cac.agent.selector;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStore.CallbackHandlerProtection;
+import java.security.KeyStore.Builder;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -25,42 +23,80 @@ import com.moesol.cac.agent.Config;
 
 public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	private static Logger LOGGER = Logger.getLogger(Pkcs11SelectorKeyManager.class.getName());
-	private List<Provider> providers = new ArrayList<>();
 
+	private final Object buildersLock = new Object();
+	private List<KeyStore.Builder> builders = new ArrayList<>();
+
+	/**
+	 * Overrides getKeyStore because AbstractSelectorKeyManager caches the keyStore
+	 * too aggressively for smartcards that can be removed/inserted.
+	 */
 	@Override
-	protected KeyStore accessKeyStore() throws Exception {
-		setUpProvider();
+	public KeyStore getKeyStore() {
+		ensureBuilders();
 		
+		synchronized (keyStoreLock) {
+			while (true) {
+				try {
+					setKeyStore(null); // In case of exception.
+					KeyStore ks = accessKeyStore();
+					setKeyStore(ks);
+					return ks;
+				} catch (Exception e) {
+					// Cannot get out of this method without a valid KeyStore.
+					chooser.promptForCardInsertion(e.getLocalizedMessage());
+				}
+			}
+		}
+	}
+	
+	@Override
+	protected KeyStore accessKeyStore() throws KeyStoreException {
 		chooser.showBusy("Accessing CAC...");
 		try {
-			Exception lastException = null;
-			for (Provider provider : providers) {
-				Object result = loadOrException(provider);
-				if (result instanceof KeyStore) {
-					return (KeyStore) result;
+			// Try to get a keystore from any of the builders
+			// The first success wins, if all fail, report last failure.
+			KeyStoreException lastException = null;
+			for (KeyStore.Builder builder : builders) {
+				try {
+					return builder.getKeyStore();
+				} catch (KeyStoreException e) {
+					lastException = e;
 				}
-				lastException = (Exception) result;
 			}
 			throw lastException;
 		} finally {
 			chooser.hideBusy();
 		}
 	}
-	private Object loadOrException(Provider provider) {
-		KeyStore ks;
-		try {
-			ks = KeyStore.Builder
-					.newInstance("PKCS11", provider, makeCallbackHandler())
-					.getKeyStore();
-			ks.load(null, null);
-			return ks;
-		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-			return e;
+	
+	/**
+	 * Make builders only once per Pkcs11SelectorKeyManager.
+	 */
+	private void ensureBuilders() {
+		synchronized (buildersLock) {
+			if (!builders.isEmpty()) {
+				return;
+			}
+			setUpBuilders();
 		}
 	}
-	
-	private CallbackHandlerProtection makeCallbackHandler() {
-		CallbackHandler handler = new CallbackHandler() {
+
+	private void setUpBuilders() {
+		List<Provider> providers = setUpProvider();
+		for (Provider provider : providers) {
+			// https://docs.oracle.com/javase/9/security/pkcs11-reference-guide1.htm#JSSEC-GUID-4C366313-33B9-458C-A845-33D0C8A9C367
+			KeyStore.CallbackHandlerProtection chp =
+				    new KeyStore.CallbackHandlerProtection(makeCallbackHandler());
+			Builder builder = KeyStore.Builder
+					.newInstance("PKCS11", provider, chp);
+			
+			builders.add(builder);
+		}
+	}
+
+	private CallbackHandler makeCallbackHandler() {
+		return new CallbackHandler() {
 			@Override
 			public void handle(Callback[] callbacks) throws IOException,
 					UnsupportedCallbackException {
@@ -89,27 +125,30 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 				}
 			}
 		};
-		return new KeyStore.CallbackHandlerProtection(handler);		
 	}
 	
-	private void setUpProvider() {
+	private List<Provider> setUpProvider() {
 		chooser.showBusy("Initializing PKCS#11...");
+
+		final List<Provider> providers = new ArrayList<>();
+
 		try {
 			File configFile = new File(Config.computeProfileFolder(), "pkcs11.cfg");
 			String configName = configFile.getAbsolutePath();
 			if (configFile.exists()) {
-				addPkcs1ProviderFromFile(configName);
+				addPkcs1ProviderFromFile(configName, providers);
 			} else {
 				String message = "Not found: " + configName;
 				String title = "PKCS#11 Configuration Not Loaded";
 				JOptionPane.showMessageDialog(null, message, title, JOptionPane.WARNING_MESSAGE);
 			}
-			addExtraProviders();
+			addExtraProviders(providers);
+			return providers;
 		} finally {
 			chooser.hideBusy();
 		}
 	}
-	private void addExtraProviders() {
+	private void addExtraProviders(List<Provider> providers) {
 		/*
 		 * Optionally, look for more pcks11.{n}.cfg files. This allows you to install
 		 * multiple providers and slots. See:
@@ -125,28 +164,33 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			if (!extraConfigFile.exists()) {
 				break;
 			}
-			addPkcs1ProviderFromFile(extraConfigFile.getAbsolutePath());
+			addPkcs1ProviderFromFile(extraConfigFile.getAbsolutePath(), providers);
 		}
 	}
 	@SuppressWarnings("restriction")
-	private void addPkcs1ProviderFromFile(String configName) {
+	private void addPkcs1ProviderFromFile(String configName, List<Provider> providers) {
 		Provider provider = new sun.security.pkcs11.SunPKCS11(configName);
 		Security.addProvider(provider);
 		providers.add(provider);
 		LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
 	}
 
-	public static void main(String[] args) {
-//		CacHookingAgent.DEBUG = true;
+	public static void main(String[] args) throws InterruptedException {
 		Pkcs11SelectorKeyManager selector = new Pkcs11SelectorKeyManager();
-		
+		for (int i = 0 ; i < 6; i++) {
+			doOneChoice(selector);
+			Thread.sleep(10000);
+		}
+		// Must not need to call System.exit(0) to shutdown or interferes with jgit
+	}
+	private static void doOneChoice(Pkcs11SelectorKeyManager selector) {
+//		CacHookingAgent.DEBUG = true;
 		if (Boolean.getBoolean("tty")) {
 			selector.setIdentityKeyChooser(new TtyIdentityKeyChooser(selector));
 		}
 		
 		System.out.println("chose: "
 				+ selector.chooseClientAlias(null, null, null));
-		// Must not need to call System.exit(0) to shutdown or interferes with jgit.
 	}
 
 }

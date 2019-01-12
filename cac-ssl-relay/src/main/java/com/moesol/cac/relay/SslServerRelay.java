@@ -19,6 +19,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.moesol.cac.agent.CacHookingAgent;
+import com.moesol.cac.relay.BiDirectionalRelay.SocketSupplier;
 
 /**
  * A java based port forwarder.
@@ -66,8 +67,8 @@ public class SslServerRelay {
 	}
 
 	private void relayTo(Socket clientSocket) throws UnknownHostException, IOException {
-		Socket serverSocket = SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
-		new BiDirectionalRelay(clientSocket, serverSocket);
+		SocketSupplier reconnect = () -> SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
+		new BiDirectionalRelay(clientSocket, reconnect.get(), reconnect);
 	}
 
 	private static String keyStore() {
