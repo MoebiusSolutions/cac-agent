@@ -17,7 +17,7 @@
 		<!--
 			You must specify JDK 8 and 11 binaries paths to build. For example, 
 			this would work from the command line:
-			mvn clean install -DJDK_8_HOME=/usr/lib/jvm/java-8-openjdk-amd64 -DJDK_8_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+			mvn clean install -DJDK_8_HOME=/usr/lib/jvm/java-8-openjdk-amd64 -DJDK_11_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 		-->
 		<!--
 		<JDK_8_HOME>/usr/lib/jvm/java-8-openjdk-amd64</JDK_8_HOME>
