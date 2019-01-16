@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import com.moesol.cac.agent.jdk_interface_11.Pkcs11SystemJdk11;
 import com.moesol.cac.agent.jdk_interface_8.Pkcs11SystemJdk8;
 
-// TODO [rkenney]: Try falling back to impementations on exceptions
 public class Pkcs11System {
 
 	private static final Pattern PRE_9_VERSION_PATTERN = Pattern.compile("1\\.(\\d+).*");
