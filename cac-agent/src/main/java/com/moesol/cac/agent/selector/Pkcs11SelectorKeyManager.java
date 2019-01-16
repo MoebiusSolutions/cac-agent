@@ -20,6 +20,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.JOptionPane;
 
 import com.moesol.cac.agent.Config;
+import com.moesol.cac.agent.Pkcs11System;
 
 public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	private static Logger LOGGER = Logger.getLogger(Pkcs11SelectorKeyManager.class.getName());
@@ -167,10 +168,10 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			addPkcs1ProviderFromFile(extraConfigFile.getAbsolutePath(), providers);
 		}
 	}
-
 	private void addPkcs1ProviderFromFile(String configName, List<Provider> providers) {
-		Provider provider = Security.getProvider("SunPKCS11");
-		provider = provider.configure(configName);
+		// TODO [rkenney]: Remove service loader
+		Provider provider = Pkcs11System.getPkcs11Provider(configName);
+
 		Security.addProvider(provider);
 		providers.add(provider);
 		LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
