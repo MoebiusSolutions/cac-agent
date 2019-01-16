@@ -14,14 +14,14 @@ public class Pkcs11System {
 	private static final Pattern PRE_9_VERSION_PATTERN = Pattern.compile("1\\.(\\d+).*");
 	private static final Pattern POST_9_VERSION_PATTERN = Pattern.compile("(\\d+).*");
 
-	public static Provider getPkcs11Provider(String configName) {
+	public static Provider getProvider(String configName) {
 		String jreVersion = System.getProperty("java.version");
 		Matcher matcher = PRE_9_VERSION_PATTERN.matcher(jreVersion);
 		if (matcher.matches()) {
 			int major = Integer.parseInt(matcher.group(1));
 			switch (major) {
 			case 8:
-				return new Pkcs11SystemJdk8().getPkcs11Provider(configName);
+				return new Pkcs11SystemJdk8().getProvider(configName);
 			default:
 				throw throwUnmatchedException(jreVersion);
 			}
@@ -31,7 +31,7 @@ public class Pkcs11System {
 			int major = Integer.parseInt(matcher.group(1));
 			switch (major) {
 			case 11:
-				return new Pkcs11SystemJdk11().getPkcs11Provider(configName);
+				return new Pkcs11SystemJdk11().getProvider(configName);
 			default:
 				throw throwUnmatchedException(jreVersion);
 			}

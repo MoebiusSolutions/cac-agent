@@ -169,9 +169,7 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 		}
 	}
 	private void addPkcs1ProviderFromFile(String configName, List<Provider> providers) {
-		// TODO [rkenney]: Remove service loader
-		Provider provider = Pkcs11System.getPkcs11Provider(configName);
-
+		Provider provider = Pkcs11System.getProvider(configName);
 		Security.addProvider(provider);
 		providers.add(provider);
 		LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());

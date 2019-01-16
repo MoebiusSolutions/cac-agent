@@ -135,6 +135,7 @@ public class BiDirectionalRelay {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	private void copyFromClientWithOneTimeRetry() throws IOException {
 		Thread.currentThread().setName(String.format("relay-io: %s to %s", clientSocket, serverSocket));
 		InputStream is = clientSocket.getInputStream();
@@ -165,6 +166,7 @@ public class BiDirectionalRelay {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	private void copyFromServerWithOneTimeReconnect() throws IOException {
 		Thread.currentThread().setName(String.format("relay-io: %s to %s", serverSocket, clientSocket));
 		InputStream is = serverSocket.get().getInputStream();
