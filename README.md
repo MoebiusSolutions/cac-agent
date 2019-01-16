@@ -60,4 +60,5 @@ Other Notes
 Notes to cac-agent Developers
 ----------------
 
+* [Building cac-agent](Building-cac-agent.md)
 * [Tagging/Deploying a cac-agent Release](docs/Tagging-Deploying-a-cac-agent-Release.md)
