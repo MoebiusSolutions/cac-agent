@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.MoebiusSolutions</groupId>
 	<artifactId>cac-agent-parent</artifactId>
-	<version>1.12-SNAPSHOT</version>
+	<version>1.12</version>
 	<packaging>pom</packaging>
 	<name>cac-agent-parent</name>
 	<description>Root POM for cac-agent</description>
@@ -31,7 +31,7 @@
 		<connection>scm:git:git@github.com:${github-owner}/${github-repo}.git</connection>
 		<developerConnection>scm:git:git@github.com:${github-owner}/${github-repo}.git</developerConnection>
 		<url>https://github.com/${github-owner}/${github-repo}/tree/${project.scm.tag}</url>
-		<tag>master</tag>
+		<tag>cac-agent-1.12</tag>
 	</scm>
 
 	<distributionManagement>
