@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.github.MoebiusSolutions</groupId>
 		<artifactId>cac-agent-parent</artifactId>
-		<version>1.12</version>
+		<version>1.13-SNAPSHOT</version>
 	</parent>
 	<artifactId>cac-ssl-relay</artifactId>
 	<packaging>jar</packaging>
