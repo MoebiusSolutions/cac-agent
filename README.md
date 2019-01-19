@@ -27,11 +27,12 @@ Quick Start
 
 Setup cac-agent (required for **cac-ssl-relay** and **cac-jgit**):
 
-1. Download the the latest binary from the [GitHub Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn/tree/master/com/github/MoebiusSolutions).
+1. Ensure that you're running JRE 8 or 11+ (9 and 10 may not work)
+2. Download the the latest binary from the [GitHub Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn/tree/master/com/github/MoebiusSolutions).
 	* **cac-ssl-relay**: Get the `cac-ssl-relay-XXX-jar-with-dependencies.jar` file
 	* **cac-jgit**: Get the `cac-jgit-XXX-jar-with-dependencies.jar` file
-2. [Create the cac-agent Truststore](docs/Create-the-cac-agent-Truststore.md)
-3. Configure
+3. [Create the cac-agent Truststore](docs/Create-the-cac-agent-Truststore.md)
+4. Configure
 	* [Configure cac-agent for Linux](docs/Configure-cac-agent-for-Linux.md)
 	* [Configure cac-agent for Windows](docs/Configure-cac-agent-for-Windows.md)
 
@@ -39,12 +40,6 @@ Using cac-agent:
 
 * [Using cac-jgit](docs/Using-cac-agent-with-Git.md)
 * [Using cac-ssl-relay](docs/Using-cac-agent-with-ssl-relay.md)
-
-
-Java Version Compatibility
-----------------
-
-This supports JRE 8 and 11+. If you attempt to use it with other versions, you may have mixed results.
 
 
 Other Notes
