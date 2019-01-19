@@ -22,12 +22,6 @@ This package has the following major components:
 	* This library is available from the [cac-agent Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn.git)
 
 
-Build Status
-----------------
-
-[![CircleCI](https://circleci.com/gh/MoebiusSolutions/cac-agent.svg?style=svg)](https://circleci.com/gh/MoebiusSolutions/cac-agent)
-
-
 Quick Start
 ----------------
 
@@ -47,6 +41,12 @@ Using cac-agent:
 * [Using cac-ssl-relay](docs/Using-cac-agent-with-ssl-relay.md)
 
 
+Java Version Compatibility
+----------------
+
+This supports JRE 8 and 11+. If you attempt to use it with other versions, you may have mixed results.
+
+
 Other Notes
 ----------------
 
@@ -60,5 +60,6 @@ Other Notes
 Notes to cac-agent Developers
 ----------------
 
+* Build Status: [![CircleCI](https://circleci.com/gh/MoebiusSolutions/cac-agent.svg?style=svg)](https://circleci.com/gh/MoebiusSolutions/cac-agent)
 * [Building cac-agent](Building-cac-agent.md)
 * [Tagging/Deploying a cac-agent Release](docs/Tagging-Deploying-a-cac-agent-Release.md)
