@@ -29,8 +29,10 @@ public class Pkcs11System {
 		matcher = POST_9_VERSION_PATTERN.matcher(jreVersion);
 		if (matcher.matches()) {
 			major = Integer.parseInt(matcher.group(1));
-			if (major >= 11) {
-				LOGGER.log(Level.INFO, "Detected JRE11+. Loading "+Pkcs11SystemJdk11.class.getSimpleName()+".");
+			// NOTE: Turns out the JDK11 interface works with JDK10,
+			// but we're going to continue to reference the LTE version (11).
+			if (major >= 10) {
+				LOGGER.log(Level.INFO, "Detected JRE10+. Loading "+Pkcs11SystemJdk11.class.getSimpleName()+".");
 				return new Pkcs11SystemJdk11().getProvider(configName);
 			}
 		}
