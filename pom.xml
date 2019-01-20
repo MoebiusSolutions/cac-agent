@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.MoebiusSolutions</groupId>
 	<artifactId>cac-agent-parent</artifactId>
-	<version>1.12-SNAPSHOT</version>
+	<version>1.13-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>cac-agent-parent</name>
 	<description>Root POM for cac-agent</description>
