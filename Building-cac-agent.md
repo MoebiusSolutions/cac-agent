@@ -34,6 +34,9 @@ You can specify the paths to these via `~/.m2/settings.xml`:
 
 	mvn ... -DJDK_8_HOME=/usr/lib/jvm/java-8-openjdk-amd64 -DJDK_11_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
+The version of `java` and `javac` in you default path can be any version 8 or greater.
+
+
 Building
 --------
 
