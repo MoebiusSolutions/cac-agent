@@ -15,6 +15,16 @@
 		<build.number>0</build.number>
 
 		<!--
+			You must specify JDK 8 and 11 binaries paths to build. For example, 
+			this would work from the command line:
+			mvn clean install -DJDK_8_HOME=/usr/lib/jvm/java-8-openjdk-amd64 -DJDK_11_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+		-->
+		<!--
+		<JDK_8_HOME>/usr/lib/jvm/java-8-openjdk-amd64</JDK_8_HOME>
+		<JDK_11_HOME>/usr/lib/jvm/java-11-openjdk-amd64</JDK_11_HOME>
+		-->
+		
+		<!--
 			The server entry in settings.xml containing the credentials 
 			to use with when pushing maven artifacts to github
 			(com.github.github:site-maven-plugin below).
@@ -77,6 +87,11 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -185,6 +200,9 @@
 	</build>
 
 	<modules>
+		<module>cac-agent-jdk-interface</module>
+		<module>cac-agent-jdk-8</module>
+		<module>cac-agent-jdk-11</module>
 		<module>cac-agent</module>
 		<module>cac-jgit</module>
 		<module>cac-ssl-relay</module>

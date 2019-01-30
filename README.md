@@ -22,22 +22,17 @@ This package has the following major components:
 	* This library is available from the [cac-agent Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn.git)
 
 
-Build Status
-----------------
-
-[![CircleCI](https://circleci.com/gh/MoebiusSolutions/cac-agent.svg?style=svg)](https://circleci.com/gh/MoebiusSolutions/cac-agent)
-
-
 Quick Start
 ----------------
 
 Setup cac-agent (required for **cac-ssl-relay** and **cac-jgit**):
 
-1. Download the the latest binary from the [GitHub Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn/tree/master/com/github/MoebiusSolutions).
+1. Ensure that you're running JRE 8 or 10+ (9 may not work)
+2. Download the the latest binary from the [GitHub Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn/tree/master/com/github/MoebiusSolutions).
 	* **cac-ssl-relay**: Get the `cac-ssl-relay-XXX-jar-with-dependencies.jar` file
 	* **cac-jgit**: Get the `cac-jgit-XXX-jar-with-dependencies.jar` file
-2. [Create the cac-agent Truststore](docs/Create-the-cac-agent-Truststore.md)
-3. Configure
+3. [Create the cac-agent Truststore](docs/Create-the-cac-agent-Truststore.md)
+4. Configure
 	* [Configure cac-agent for Linux](docs/Configure-cac-agent-for-Linux.md)
 	* [Configure cac-agent for Windows](docs/Configure-cac-agent-for-Windows.md)
 
@@ -60,4 +55,6 @@ Other Notes
 Notes to cac-agent Developers
 ----------------
 
+* Build Status: [![CircleCI](https://circleci.com/gh/MoebiusSolutions/cac-agent.svg?style=svg)](https://circleci.com/gh/MoebiusSolutions/cac-agent)
+* [Building cac-agent](Building-cac-agent.md)
 * [Tagging/Deploying a cac-agent Release](docs/Tagging-Deploying-a-cac-agent-Release.md)

@@ -6,8 +6,8 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
+      # The moebius image is circleci + and second JDK
+      - image: moebiussolutions/cac-agent.docker.circleci
       
     working_directory: ~/repo
 
@@ -43,7 +43,8 @@ jobs:
           when: always
       - store_test_results:
           path: ~/junit
-      - run: mvn -P circleci integration-test
+      - run: mvn -P circleci integration-test -DJDK_8_HOME="$JDK_8_HOME" -DJDK_11_HOME="$JDK_11_HOME"
+
 
       - store_artifacts:
           path: ~/repo/cac-jgit/target/cac-jgit.jar

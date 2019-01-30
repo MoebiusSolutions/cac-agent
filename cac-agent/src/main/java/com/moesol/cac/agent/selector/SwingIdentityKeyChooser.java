@@ -122,6 +122,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		return null;
 	}
 
+	@SuppressWarnings("serial")
 	private String pickOnSwingThread(String[] aliases) {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String choosenAlias = prefs.get("choosenAlias", "");
