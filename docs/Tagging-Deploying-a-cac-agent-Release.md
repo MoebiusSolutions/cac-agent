@@ -69,6 +69,10 @@ Here's the repo I added (which is a recommended superset of Maven Central):
 Tagging/Deploying a Release
 --------
 
+Before deploying, make sure the build works:
+
+	mvn clean install
+
 Here's how I generally tag/deploy the next release of cac-agent:
 
 	# Tag/push the next version
