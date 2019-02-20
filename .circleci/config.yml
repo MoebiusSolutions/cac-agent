@@ -43,7 +43,7 @@ jobs:
           when: always
       - store_test_results:
           path: ~/junit
-      - run: mvn -P circleci integration-test -DJDK_8_HOME="$JDK_8_HOME" -DJDK_11_HOME="$JDK_11_HOME"
+      - run: mvn -P circleci integration-test --global-toolchains .circleci/toolchains.xml
 
 
       - store_artifacts:

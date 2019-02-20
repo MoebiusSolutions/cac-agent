@@ -8,33 +8,35 @@ To build cac-agent, you must have JDK8 and JDK11 available for compiling.
 This allows cac-agent to carry libraries that work with both runtime
 environments.
 
-You can specify the paths to these via `~/.m2/settings.xml`:
+The version of `java` and `javac` in your default path can be any version 8 or greater.
 
-	<settings>
-	  ...
-	  <profiles>
-	    <profile>
-	      <id>cac-agent-variables</id>
-	      <!-- Point to your JDK locations -->
-	      <properties>
-		<JDK_8_HOME>/usr/lib/jvm/java-8-openjdk-amd64</JDK_8_HOME>
-		<JDK_11_HOME>/usr/lib/jvm/java-11-openjdk-amd64</JDK_11_HOME>
-	      </properties>
-	    </profile>
-	  </profiles>
-	  ...
-	 
-	  <!-- Activate profile by default (for convenience) -->
-	  <activeProfiles>
-	    <activeProfile>cac-agent-variables</activeProfile>
-	  </activeProfiles>
-	</settings>
+## Using maven tool chains to define required jdk locations
 
-... or at the time building (via command line args):
+You can specify the paths to JDK8 and JDK11 via `~/.m2/toolchains.xml`:
 
-	mvn ... -DJDK_8_HOME=/usr/lib/jvm/java-8-openjdk-amd64 -DJDK_11_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-
-The version of `java` and `javac` in you default path can be any version 8 or greater.
+	<?xml version="1.0" encoding="UTF8"?>
+	<toolchains>
+		<toolchain>
+			<type>jdk</type>
+			<provides>
+				<version>8</version>
+				<vendor>openjdk</vendor>
+			</provides>
+			<configuration>
+				<jdkHome>/usr/lib/jvm/java-8-openjdk-amd64/</jdkHome>
+			</configuration>
+		</toolchain>
+		<toolchain>
+			<type>jdk</type>
+			<provides>
+				<version>11</version>
+				<vendor>openjdk</vendor>
+			</provides>
+			<configuration>
+				<jdkHome>/usr/lib/jvm/java-11-openjdk-amd64/</jdkHome>
+			</configuration>
+		</toolchain>
+	</toolchains>
 
 
 Building
