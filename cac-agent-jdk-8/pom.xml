@@ -28,12 +28,21 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
+				<artifactId>maven-toolchains-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>toolchain</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
-					<verbose>true</verbose>
-					<fork>true</fork>
-					<executable>${JDK_8_HOME}/bin/javac</executable>
-					<compilerVersion>1.8</compilerVersion>
+					<toolchains>
+						<jdk>
+							<version>8</version>
+							<vendor>openjdk</vendor>
+						</jdk>
+					</toolchains>
 				</configuration>
 			</plugin>
 		</plugins>
