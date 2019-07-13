@@ -7,6 +7,6 @@ public interface IdentityKeyChooser {
 	void reportException(final Exception e);
 	void showBusy(String string);
 	void hideBusy();
-	char[] promptForPin(String prompt);
-	void promptForCardInsertion(String error);
+	char[] promptForPin(String title, String prompt);
+	void promptForCardInsertion(String title, String error);
 }

@@ -62,17 +62,18 @@ public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 	}
 
 	@Override
-	public char[] promptForPin(String prompt) {
+	public char[] promptForPin(String title, String prompt) {
 		Console cons = System.console();
 		if (cons == null) {
 			System.err.println("No console, cannot input PIN");
 			return new char[0];
 		}
-		return cons.readPassword("PIN: ");
+		return cons.readPassword("%s%n%s", title, prompt);
 	}
 
 	@Override
-	public void promptForCardInsertion(String error) {
+	public void promptForCardInsertion(String title, String error) {
+		System.out.println(title);
 		System.out.println(error);
 		System.out.println("Insert Smartcard, then press Enter");
 		try {

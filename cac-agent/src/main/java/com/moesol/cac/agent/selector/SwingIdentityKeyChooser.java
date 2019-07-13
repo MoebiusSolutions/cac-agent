@@ -67,7 +67,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 			}
 		});
 		
-		maybeShowBusy.setInitialDelay(1000);
+		maybeShowBusy.setInitialDelay(3000);
 		maybeShowBusy.setRepeats(false);
 		maybeShowBusy.start();
 	}
@@ -88,8 +88,8 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		});
 	}
 
-	public char[] promptForPin(String prompt) {
-		JLabel label = new JLabel("Enter CAC PIN:");
+	public char[] promptForPin(String title, String prompt) {
+		JLabel label = new JLabel(prompt);
 		final JPasswordField pass = new JPasswordField(10);
 
 		JPanel panel = new JPanel();
@@ -100,7 +100,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		pane.setMessage(panel);
 		pane.setMessageType(JOptionPane.QUESTION_MESSAGE);
 		pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(busy, "CAC");
+		JDialog dialog = pane.createDialog(busy, title);
 		dialog.addWindowFocusListener(new WindowAdapter() {
 		    public void windowGainedFocus(WindowEvent e) {
 		    	pass.requestFocusInWindow();
@@ -211,9 +211,23 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	}
 
 	@Override
-	public void promptForCardInsertion(String error) {
+	public void promptForCardInsertion(String title, String error) {
 		String msg = error + "\n\nInsert Smartcard";
-		JOptionPane.showMessageDialog(null, msg);
+//		JOptionPane.showMessageDialog(null, msg);
+		
+	    Object stringArray[] = { "OK", "Exit" };
+	    int r = JOptionPane.showOptionDialog(null, msg, title, 
+	    		JOptionPane.YES_NO_OPTION, 
+	    		JOptionPane.QUESTION_MESSAGE, null, stringArray, stringArray[0]);
+	    switch (r) {
+	    case JOptionPane.OK_OPTION:
+	    	break;
+	    case JOptionPane.NO_OPTION:
+	    	System.exit(0);
+	    	break;
+    	default:
+	    	break;	
+	    }
 	}
 
 }

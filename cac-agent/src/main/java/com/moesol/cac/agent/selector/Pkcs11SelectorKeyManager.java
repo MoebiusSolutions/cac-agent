@@ -6,6 +6,7 @@ import java.security.KeyStore;
 import java.security.KeyStore.Builder;
 import java.security.KeyStoreException;
 import java.security.Provider;
+import java.security.ProviderException;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,18 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	private static Logger LOGGER = Logger.getLogger(Pkcs11SelectorKeyManager.class.getName());
 
 	private final Object buildersLock = new Object();
-	private List<KeyStore.Builder> builders = new ArrayList<>();
+	private List<KeyStoreBuilderWrapper> builders = new ArrayList<>();
+	private String providerDescription = "unavailable";
+
+	private static class KeyStoreBuilderWrapper {
+		public final KeyStore.Builder builder;
+		public final String description;
+		
+		public KeyStoreBuilderWrapper(KeyStore.Builder builder, String description) {
+			this.builder = builder;
+			this.description = description;
+		}
+	}
 
 	/**
 	 * Overrides getKeyStore because AbstractSelectorKeyManager caches the keyStore
@@ -39,13 +51,18 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 		synchronized (keyStoreLock) {
 			while (true) {
 				try {
+					providerDescription = "unavailable";
 					setKeyStore(null); // In case of exception.
 					KeyStore ks = accessKeyStore();
 					setKeyStore(ks);
 					return ks;
 				} catch (Exception e) {
 					// Cannot get out of this method without a valid KeyStore.
-					chooser.promptForCardInsertion(e.getLocalizedMessage());
+					String msg = e.getLocalizedMessage();
+					if (msg == null || msg.equals("null")) {
+						msg = "";
+					}
+					chooser.promptForCardInsertion(providerDescription, msg);
 				}
 			}
 		}
@@ -58,9 +75,10 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			// Try to get a keystore from any of the builders
 			// The first success wins, if all fail, report last failure.
 			KeyStoreException lastException = null;
-			for (KeyStore.Builder builder : builders) {
+			for (KeyStoreBuilderWrapper wrapper : builders) {
 				try {
-					return builder.getKeyStore();
+					providerDescription = wrapper.description;
+					return wrapper.builder.getKeyStore();
 				} catch (KeyStoreException e) {
 					lastException = e;
 				}
@@ -88,46 +106,49 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 		for (Provider provider : providers) {
 			// https://docs.oracle.com/javase/9/security/pkcs11-reference-guide1.htm#JSSEC-GUID-4C366313-33B9-458C-A845-33D0C8A9C367
 			KeyStore.CallbackHandlerProtection chp =
-				    new KeyStore.CallbackHandlerProtection(makeCallbackHandler());
+				    new KeyStore.CallbackHandlerProtection(new Pkcs11CallbackHandler(provider));
 			Builder builder = KeyStore.Builder
 					.newInstance("PKCS11", provider, chp);
 			
-			builders.add(builder);
+			builders.add(new KeyStoreBuilderWrapper(builder, provider.getName()));
+		}
+	}
+	
+	private class Pkcs11CallbackHandler implements CallbackHandler {
+		private final Provider provider;
+		
+		public Pkcs11CallbackHandler(Provider provider) {
+			this.provider = provider;
+		}
+		@Override
+		public void handle(Callback[] callbacks) throws IOException,
+				UnsupportedCallbackException {
+			for (Callback c : callbacks) {
+				if (c instanceof PasswordCallback) {
+					PasswordCallback pc = (PasswordCallback) c;
+					pc.setPassword(chooser.promptForPin(provider.getName(), "PIN to Unlock Token:"));
+				} else if (c instanceof TextOutputCallback) {
+					TextOutputCallback tc = (TextOutputCallback) c;
+					switch (tc.getMessageType()) {
+					case TextOutputCallback.INFORMATION:
+						LOGGER.log(Level.INFO, "{0}", tc.getMessage());
+						break;
+					case TextOutputCallback.WARNING:
+						LOGGER.log(Level.WARNING, "{0}", tc.getMessage());
+						break;
+					case TextOutputCallback.ERROR:
+						LOGGER.log(Level.SEVERE, "{0}", tc.getMessage());
+						break;
+					default:
+						throw new UnsupportedOperationException("TextOutputCallback: " + tc.getMessageType());
+					}
+				} else {
+					LOGGER.log(Level.INFO, "Ignoring: {0}", c);
+				}
+			}
 		}
 	}
 
-	private CallbackHandler makeCallbackHandler() {
-		return new CallbackHandler() {
-			@Override
-			public void handle(Callback[] callbacks) throws IOException,
-					UnsupportedCallbackException {
-				for (Callback c : callbacks) {
-					if (c instanceof PasswordCallback) {
-						PasswordCallback pc = (PasswordCallback) c;
-						pc.setPassword(chooser.promptForPin(pc.getPrompt()));
-					} else if (c instanceof TextOutputCallback) {
-						TextOutputCallback tc = (TextOutputCallback) c;
-						switch (tc.getMessageType()) {
-						case TextOutputCallback.INFORMATION:
-							LOGGER.log(Level.INFO, "{0}", tc.getMessage());
-							break;
-						case TextOutputCallback.WARNING:
-							LOGGER.log(Level.WARNING, "{0}", tc.getMessage());
-							break;
-						case TextOutputCallback.ERROR:
-							LOGGER.log(Level.SEVERE, "{0}", tc.getMessage());
-							break;
-						default:
-							throw new UnsupportedOperationException("TextOutputCallback: " + tc.getMessageType());
-						}
-					} else {
-						LOGGER.log(Level.INFO, "Ignoring: {0}", c);
-					}
-				}
-			}
-		};
-	}
-	
 	private List<Provider> setUpProvider() {
 		chooser.showBusy("Initializing PKCS#11...");
 
@@ -137,7 +158,7 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			File configFile = new File(Config.computeProfileFolder(), "pkcs11.cfg");
 			String configName = configFile.getAbsolutePath();
 			if (configFile.exists()) {
-				addPkcs1ProviderFromFile(configName, providers);
+				addPkcs11ProviderFromFile(configName, providers);
 			} else {
 				String message = "Not found: " + configName;
 				String title = "PKCS#11 Configuration Not Loaded";
@@ -165,11 +186,16 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			if (!extraConfigFile.exists()) {
 				break;
 			}
-			addPkcs1ProviderFromFile(extraConfigFile.getAbsolutePath(), providers);
+			try {
+				addPkcs11ProviderFromFile(extraConfigFile.getAbsolutePath(), providers);
+			} catch (ProviderException e) {
+				LOGGER.log(Level.WARNING, "Provider failed to init {0}", extraConfigFile);
+			}
 		}
 	}
-	private void addPkcs1ProviderFromFile(String configName, List<Provider> providers) {
-		Provider provider = Pkcs11System.getProvider(configName);
+	@SuppressWarnings("restriction")
+	private void addPkcs11ProviderFromFile(String configName, List<Provider> providers) {
+		Provider provider = new sun.security.pkcs11.SunPKCS11(configName);
 		Security.addProvider(provider);
 		providers.add(provider);
 		LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
