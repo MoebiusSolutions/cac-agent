@@ -18,7 +18,7 @@ This package has the following major components:
 	* Note that jGit is missing a handful of convenience commands, such as `git pull` (instead you have to run `jgit fetch` then `git merge ...` explicitly).
 
 > NOTE: If you are just looking for CAC integration for `git` on Windows, you might try `Github Desktop`. It integrates with the 
-> Windows Certifcate manager, so that if your CAC is already configured and working for IE/Edge it should work with `Github Desktop`
+> Windows Certifcate Manager. Thus, if your CAC is already configured and working for IE/Edge, it should work with `Github Desktop`.
 > To prevent `Github Desktop` from chaning LF to CRLF on checkout you can configure git:
 
      git config core.eol lf
