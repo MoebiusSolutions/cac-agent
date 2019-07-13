@@ -193,9 +193,9 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 			}
 		}
 	}
-	@SuppressWarnings("restriction")
+
 	private void addPkcs11ProviderFromFile(String configName, List<Provider> providers) {
-		Provider provider = new sun.security.pkcs11.SunPKCS11(configName);
+		Provider provider = Pkcs11System.getProvider(configName);
 		Security.addProvider(provider);
 		providers.add(provider);
 		LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
