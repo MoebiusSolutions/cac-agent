@@ -19,7 +19,7 @@ This package has the following major components:
 
 > NOTE: If you are just looking for CAC integration for `git` on Windows, you might try `Github Desktop`. It integrates with the 
 > Windows Certifcate Manager. Thus, if your CAC is already configured and working for IE/Edge, it should work with `Github Desktop`.
-> To prevent `Github Desktop` from chaning LF to CRLF on checkout you can configure git:
+> To prevent `Github Desktop` from changing LF to CRLF on checkout you can configure git:
 
      git config core.eol lf
      git config core.autocrlf input
