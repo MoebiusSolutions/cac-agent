@@ -9,15 +9,24 @@ This package has the following major components:
 * **cac-ssl-relay**: A local daemon that transparently wraps traffic with a CAC-protected TLS tunnel
 	* Client applications can access the remote, CAC-protected services without any direct CAC integration
 	* When you connect through this daemon, you're only prompted for a CAC PIN on the first request
-	* This works great with private SSL-protected web services including **Git**, **Maven**, **NPM**, and **Docker**
-		* In the case of Docker, you'll have to make sure that you [setup local SSL](docs/Using-local-ssl-with-ssl-relay.md) or else the server can get confused by the transition between HTTP and HTTPS
+	* This works great with private SSL/TLS-protected services including **Git**, **Maven**, **NPM**, and **Docker**
+		* In the case of Docker, you'll have to make sure that you [setup local SSL](docs/Using-local-ssl-with-ssl-relay.md) 
+		  or else the server can get confused by the transition between HTTP and HTTPS
 
 * **cac-jgit**: A version of the jGit CLI with bundled CAC support
 	* This works as a standalone replacement for command line Git, without the need for **cac-ssl-relay**
-	* Note that jGit is missing a handful of convenience commands, such as `git pull` (instead you have to run `git fetch` then `git merge ...` explicitly).
+	* Note that jGit is missing a handful of convenience commands, such as `git pull` (instead you have to run `jgit fetch` then `git merge ...` explicitly).
+
+> NOTE: If you are just looking for CAC integration for `git` on Windows, you might try `Github Desktop`. It integrates with the 
+> Windows Certifcate Manager. Thus, if your CAC is already configured and working for IE/Edge, it should work with `Github Desktop`.
+> To prevent `Github Desktop` from changing LF to CRLF on checkout you can configure git:
+
+     git config core.eol lf
+     git config core.autocrlf input
 
 * **cac-agent**: A generalized CAC integration for Java
 	* You can use this libary to add a Swing-popup or CLI-prompt to select/use a CAC certificate for SSL (HTTPS) operations
+	  This especially useful if your card has more than one certificate, otherwise Java always uses the first certificate.
 	* The apps above depend upon this library
 	* This library is available from the [cac-agent Maven repo](https://github.com/MoebiusSolutions/cac-agent.mvn.git)
 
