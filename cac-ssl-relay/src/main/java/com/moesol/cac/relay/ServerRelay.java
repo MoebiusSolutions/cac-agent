@@ -1,10 +1,13 @@
 package com.moesol.cac.relay;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -18,6 +21,8 @@ import com.moesol.cac.relay.BiDirectionalRelay.SocketSupplier;
  * The target connection is ALWAYS SSL/TLS.
  */
 public class ServerRelay {
+	private static final Logger LOGGER = Logger.getLogger(ServerRelay.class.getName());
+
 	private final String bindHost;
 	private final int bindPort;
 	private final String targetHost;
@@ -33,6 +38,8 @@ public class ServerRelay {
 	public void run() {
 		try {
 			run0();
+		} catch (BindException e) {
+			LOGGER.log(Level.WARNING, "Unable to bind to {0}", this.bindHost + ":" + this.bindPort);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

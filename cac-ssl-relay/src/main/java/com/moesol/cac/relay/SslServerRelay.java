@@ -2,6 +2,7 @@ package com.moesol.cac.relay;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -46,6 +47,8 @@ public class SslServerRelay {
 	public void run() {
 		try {
 			run0();
+		} catch (BindException e) {
+			LOGGER.log(Level.WARNING, "Unable to bind to {0}", this.bindHost + ":" + this.bindPort);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
