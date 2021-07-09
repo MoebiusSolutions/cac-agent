@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -41,7 +43,7 @@ import com.moesol.cac.agent.Config;
 public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager	
 	implements X509KeyManager, IdentityKeyListProvider 
 {
-	private String choosenAlias = null;
+	private Map<String, String> lastChosenAlias = new HashMap();
 	protected final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
 	protected IdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
@@ -111,14 +113,27 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	// NOTE: Overrides the non-abstract method in base class, tricky.
 	@Override
 	public String chooseEngineClientAlias(String[] keyType, Principal[] issuers, SSLEngine engine) {
-		return chooseClientAlias(keyType, issuers, (Socket)null);
+		String peerKey = null;
+		if (engine != null) {
+			peerKey = engine.getPeerHost() + ":" + engine.getPeerPort();
+		}
+		return choosePeerClientAlias(keyType, issuers, peerKey);
 	}
 	@Override
-	public synchronized String chooseClientAlias(final String[] keyType, final Principal[] issuers, Socket socket) {
+	public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
+		String peerKey = null;
+		if (socket != null && socket.getInetAddress() != null) {
+			peerKey = socket.getInetAddress().getHostName() + ":" + socket.getPort();
+		}
+		return choosePeerClientAlias(keyType, issuers, peerKey);
+	}
+	protected synchronized String choosePeerClientAlias(final String[] keyType, final Principal[] issuers, final String peerKey) {
 		if (CacHookingAgent.DEBUG) {
 			System.out.println("chooseClientAlias: ");
 		}
-		if (choosenAlias != null) {
+
+		String choosenAlias = lastChosenAlias.get(peerKey);
+		if (lastChosenAlias.containsKey(peerKey)) {
 			if (CacHookingAgent.DEBUG) {
 				System.out.println("cached chooseClientAlias: " + choosenAlias);
 			}
@@ -139,6 +154,7 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 		if (CacHookingAgent.DEBUG) {
 			System.out.println("chooseClientAlias: " + choosenAlias);
 		}
+		lastChosenAlias.put(peerKey, choosenAlias);
 		return choosenAlias;
 	}
 	
