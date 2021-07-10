@@ -17,6 +17,7 @@ public class Config {
 	private static final String AGENT_PROPERTIES = "agent.properties";
 
 	private boolean useWindowsTrust = true;
+	private boolean checkCertIssuer = true;
 	private String defaultCertificateName = null;
 	private boolean tty = false;
 	private String user = null;
@@ -39,6 +40,14 @@ public class Config {
 
 	public void setUseWindowsTrust(boolean useWindowsTrust) {
 		this.useWindowsTrust = useWindowsTrust;
+	}
+
+	public boolean isCheckCertIssuer() {
+		return checkCertIssuer;
+	}
+
+	public void setCheckCertIssuer(boolean checkCertIssuer) {
+		this.checkCertIssuer = checkCertIssuer;
 	}
 
 	public String getDefaultCertificateName() {
@@ -129,6 +138,7 @@ public class Config {
 			Config result = new Config();
 			result.setDefaultCertificateName(p.getProperty("default.cert.name"));
 			result.setUseWindowsTrust(Boolean.parseBoolean(p.getProperty("use.windows.trust", "true")));
+			result.setCheckCertIssuer(Boolean.parseBoolean(p.getProperty("check.cert.issuer", "true")));
 			result.setTty(Boolean.parseBoolean(p.getProperty("use.tty")));
 			result.setUser(p.getProperty("user"));
 			result.setPass(p.getProperty("pass"));

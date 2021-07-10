@@ -16,8 +16,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -25,6 +27,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509KeyManager;
+import javax.security.auth.x500.X500Principal;
 
 import com.moesol.cac.agent.CacHookingAgent;
 import com.moesol.cac.agent.Config;
@@ -47,11 +50,15 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	protected final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
 	protected IdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
+	protected boolean checkCertIssuer = true;
 
 	public AbstractSelectorKeyManager() {
 	}
 	public void setIdentityKeyChooser(IdentityKeyChooser chooser) {
 		this.chooser = chooser;
+	}
+	public void setCheckCertIssuer(boolean checkCertIssuer) {
+		this.checkCertIssuer = checkCertIssuer;
 	}
 
 	/**
@@ -83,6 +90,7 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 			System.out.println("Linux key manager");
 			keyManager = new Pkcs11SelectorKeyManager();
 		}
+		keyManager.setCheckCertIssuer(config.isCheckCertIssuer());
 		if (config.isTty()) {
 			keyManager.setIdentityKeyChooser(new TtyIdentityKeyChooser(keyManager));
 		}
@@ -147,7 +155,10 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 			}
 
 			final String[] aliases = getClientAliases(null, issuers);
-			choosenAlias = chooser.chooseFromAliases(aliases);
+			if (aliases.length > 0) {
+				// only prompt user for alias selection if choices exist
+				choosenAlias = chooser.chooseFromAliases(aliases);
+			}
 		} catch (Exception e) {
 			throw reportAndConvert(e);
 		}
@@ -234,15 +245,52 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 			if (ks == null) {
 				return new String[0];
 			}
+			Set<Principal> issuerSet = null;
+			if (issuers != null && issuers.length > 0) {
+				issuerSet = new HashSet<>(Arrays.asList(issuers));
+			}
 			ArrayList<String> asList = new ArrayList<String>();
 			Enumeration<String> aliases = ks.aliases();
 			while (aliases.hasMoreElements()) {
-				// TODO filter by keyType/issuers?
-				asList.add(aliases.nextElement());
+				// Ignore keyType filter to workaround bug JDK-8262186
+				String alias = aliases.nextElement();
+				if (ks.isKeyEntry(alias)) {
+					Certificate[] chain = ks.getCertificateChain(alias);
+					if (isX509Chain(chain)
+							&& (!checkCertIssuer || issuerMatches(chain, issuerSet))) {
+						asList.add(alias);
+					}
+				}
 			}
 			return asList.toArray(new String[asList.size()]);
 		} catch (KeyStoreException e) {
 			throw reportAndConvert(e);
+		}
+	}
+	private boolean isX509Chain(Certificate[] chain) {
+		if (chain == null || chain.length == 0) {
+			return false;
+		} else {
+			for (Certificate c : chain) {
+				if (c instanceof X509Certificate == false) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	private boolean issuerMatches(Certificate[] chain, Set<Principal> issuerSet) {
+		if (issuerSet == null) {
+			return true;
+		} else {
+			for (Certificate c : chain) {
+				X509Certificate x509 = (X509Certificate) c;
+				X500Principal issuer = x509.getIssuerX500Principal();
+				if (issuerSet.contains(issuer)) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
