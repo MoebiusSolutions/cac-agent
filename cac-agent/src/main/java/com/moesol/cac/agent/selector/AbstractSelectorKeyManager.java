@@ -46,11 +46,15 @@ import com.moesol.cac.agent.Config;
 public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager	
 	implements X509KeyManager, IdentityKeyListProvider 
 {
+	private static final String KEY_USAGE_OID_CLIENT_AUTH = "1.3.6.1.5.5.7.3.2";
+	private static final String KEY_USAGE_OID_ANY = "2.5.29.37.0";
+
 	private Map<String, String> lastChosenAlias = new HashMap();
 	protected final Object keyStoreLock = new Object();
 	private KeyStore keyStore;
 	protected IdentityKeyChooser chooser = new SwingIdentityKeyChooser(this);
 	protected boolean checkCertIssuer = true;
+	protected boolean checkKeyUsage = true;
 
 	public AbstractSelectorKeyManager() {
 	}
@@ -59,6 +63,9 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	}
 	public void setCheckCertIssuer(boolean checkCertIssuer) {
 		this.checkCertIssuer = checkCertIssuer;
+	}
+	public void setCheckKeyUsage(boolean checkKeyUsage) {
+		this.checkKeyUsage = checkKeyUsage;
 	}
 
 	/**
@@ -91,6 +98,7 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 			keyManager = new Pkcs11SelectorKeyManager();
 		}
 		keyManager.setCheckCertIssuer(config.isCheckCertIssuer());
+		keyManager.setCheckKeyUsage(config.isCheckKeyUsage());
 		if (config.isTty()) {
 			keyManager.setIdentityKeyChooser(new TtyIdentityKeyChooser(keyManager));
 		}
@@ -257,6 +265,7 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 				if (ks.isKeyEntry(alias)) {
 					Certificate[] chain = ks.getCertificateChain(alias);
 					if (isX509Chain(chain)
+							&& (!checkKeyUsage || keyUsageMatches(chain))
 							&& (!checkCertIssuer || issuerMatches(chain, issuerSet))) {
 						asList.add(alias);
 					}
@@ -277,6 +286,45 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 				}
 			}
 			return true;
+		}
+	}
+	private boolean keyUsageMatches(Certificate[] chain) {
+		try {
+			// if the extended key usage field is present, it must contain a client auth OID
+			X509Certificate c = (X509Certificate) chain[0];
+			List<String> extended = c.getExtendedKeyUsage();
+			if (extended != null
+					&& !extended.contains(KEY_USAGE_OID_CLIENT_AUTH)
+					&& !extended.contains(KEY_USAGE_OID_ANY)) {
+				return false;
+			}
+
+			// if the key usage field is present, it must contain algorithm-specific bits
+			boolean[] usage = c.getKeyUsage();
+			if (usage != null) {
+				switch (c.getPublicKey().getAlgorithm()) {
+				case "RSA":
+				case "DSA":
+				case "EC":
+					// require digitalSignature bit
+					if (usage.length < 1 || usage[0] == false) {
+						return false;
+					}
+					break;
+				case "DH":
+					// require keyAgreement bit
+					if (usage.length < 5 || usage[4] == false) {
+						return false;
+					}
+					break;
+				}
+			}
+
+			// certificate key usage passes checks
+			return true;
+		} catch (CertificateParsingException ce) {
+			// key usage fields were unparseable
+			return false;
 		}
 	}
 	private boolean issuerMatches(Certificate[] chain, Set<Principal> issuerSet) {
