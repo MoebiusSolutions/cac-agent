@@ -18,6 +18,7 @@ public class Config {
 
 	private boolean useWindowsTrust = true;
 	private boolean checkCertIssuer = true;
+	private boolean checkKeyUsage = true;
 	private String defaultCertificateName = null;
 	private boolean tty = false;
 	private String user = null;
@@ -48,6 +49,14 @@ public class Config {
 
 	public void setCheckCertIssuer(boolean checkCertIssuer) {
 		this.checkCertIssuer = checkCertIssuer;
+	}
+
+	public boolean isCheckKeyUsage() {
+		return checkKeyUsage;
+	}
+
+	public void setCheckKeyUsage(boolean checkKeyUsage) {
+		this.checkKeyUsage = checkKeyUsage;
 	}
 
 	public String getDefaultCertificateName() {
@@ -139,6 +148,7 @@ public class Config {
 			result.setDefaultCertificateName(p.getProperty("default.cert.name"));
 			result.setUseWindowsTrust(Boolean.parseBoolean(p.getProperty("use.windows.trust", "true")));
 			result.setCheckCertIssuer(Boolean.parseBoolean(p.getProperty("check.cert.issuer", "true")));
+			result.setCheckKeyUsage(Boolean.parseBoolean(p.getProperty("check.key.usage", "true")));
 			result.setTty(Boolean.parseBoolean(p.getProperty("use.tty")));
 			result.setUser(p.getProperty("user"));
 			result.setPass(p.getProperty("pass"));
