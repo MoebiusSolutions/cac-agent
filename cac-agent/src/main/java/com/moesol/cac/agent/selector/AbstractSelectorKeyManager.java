@@ -78,6 +78,18 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	 * @throws KeyManagementException
 	 */
 	public static AbstractSelectorKeyManager configureSwingKeyManagerAsDefault(Config config) throws NoSuchAlgorithmException, KeyManagementException {
+		return configureSwingKeyManagerAsDefault(config, null);
+	}
+
+	/**
+	 * Injects this manager into the SSLContext.
+	 * @param config configuration parameters for initialization
+	 * @param applicationName the name of the enclosing application
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyManagementException
+	 */
+	public static AbstractSelectorKeyManager configureSwingKeyManagerAsDefault(Config config, String applicationName) throws NoSuchAlgorithmException, KeyManagementException {
 		if (CacHookingAgent.DEBUG) {
 			System.out.println("Context: " + CacHookingAgent.CONTEXT);
 		}
@@ -88,7 +100,9 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 
 		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 
-		return (AbstractSelectorKeyManager) kmgrs[0];
+		AbstractSelectorKeyManager result = (AbstractSelectorKeyManager) kmgrs[0];
+		result.getIdentityKeyChooser().setApplicationName(applicationName);
+		return result;
 	}
 
 	public static KeyManager[] makeKeyManagers(Config config) {

@@ -1,7 +1,10 @@
 package com.moesol.cac.agent.selector;
 
 import java.awt.AWTKeyStroke;
+import java.awt.Component;
+import java.awt.Image;
 import java.awt.KeyboardFocusManager;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -32,6 +35,8 @@ import javax.swing.Timer;
 
 public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	private final IdentityKeyListProvider provider;
+	private String applicationName;
+	private Component parentComponent;
 	private IdentityKeyCertFormatter formatter;
 	private String choosenAlias;
 	private Timer maybeShowBusy = new Timer(1000, e -> showBusyNow());
@@ -42,6 +47,14 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		this.formatter = DefaultCertFormatter.INSTANCE;
 	}
 	
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
+
+	public void setParentComponent(Component parentComponent) {
+		this.parentComponent = parentComponent;
+	}
+
 	public void setCertFormatter(IdentityKeyCertFormatter formatter) {
 		this.formatter = formatter;
 	}
@@ -50,9 +63,10 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				String title = makeTitle("No Identities Found");
 				String message = "No certificates were found to authenticate to "
 					+ (remoteHost == null ? "the server." : remoteHost);
-				JOptionPane.showMessageDialog(null, message, "No Identities Found", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(getParent(), message, title, JOptionPane.WARNING_MESSAGE);
 			}
 		});
 	}
@@ -71,7 +85,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Failed", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getParent(), e.getLocalizedMessage(), makeTitle("Failed"), JOptionPane.ERROR_MESSAGE);
 			}
 		});
 	}
@@ -81,7 +95,8 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 			@Override
 			public void run() {
 				JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
-				busy = pane.createDialog("CAC");
+				busy = pane.createDialog(parentComponent, makeTitle("CAC"));
+				setWindowIcon(busy);
 				busy.setModal(false);
 			}
 		});
@@ -120,6 +135,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		pane.setMessageType(JOptionPane.QUESTION_MESSAGE);
 		pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(busy, title);
+		setWindowIcon(dialog);
 		dialog.addWindowFocusListener(new WindowAdapter() {
 		    public void windowGainedFocus(WindowEvent e) {
 		    	pass.requestFocusInWindow();
@@ -181,7 +197,8 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		String cancel = "Cancel";
 		pane.setOptions(new Object[] { cancel });
 
-		final JDialog dialog = pane.createDialog("Select Identity");
+		final JDialog dialog = pane.createDialog(getParent(), makeTitle("Select Identity"));
+		setWindowIcon(dialog);
 		bindArrowKeys(dialog);
 		panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("ENTER"), "selectKey");
 		panel.getActionMap().put("selectKey", new AbstractAction() {
@@ -238,7 +255,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 //		JOptionPane.showMessageDialog(null, msg);
 		
 	    Object stringArray[] = { "OK", "Exit" };
-	    int r = JOptionPane.showOptionDialog(null, msg, title, 
+	    int r = JOptionPane.showOptionDialog(busy, msg, title, 
 	    		JOptionPane.YES_NO_OPTION, 
 	    		JOptionPane.QUESTION_MESSAGE, null, stringArray, stringArray[0]);
 	    switch (r) {
@@ -250,6 +267,38 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
     	default:
 	    	break;	
 	    }
+	}
+
+	protected Component getParent() {
+		if (busy != null && busy.isShowing()) {
+			return busy;
+		} else {
+			return parentComponent;
+		}
+	}
+
+	protected String makeTitle(final String baseTitle) {
+		if (applicationName == null) {
+			return baseTitle;
+		} else {
+			return baseTitle + " - " + applicationName;
+		}
+	}
+
+	protected void setWindowIcon(final Window w) {
+		Window parentWindow = null;
+		if (parentComponent instanceof Window) {
+			parentWindow = (Window) parentComponent;
+		} else if (parentComponent != null) {
+			parentWindow = SwingUtilities.getWindowAncestor(parentComponent);
+		}
+
+		if (parentWindow != null) {
+			List<Image> iconImages = parentWindow.getIconImages();
+			if (iconImages != null && !iconImages.isEmpty()) {
+				w.setIconImages(iconImages);
+			}
+		}
 	}
 
 }

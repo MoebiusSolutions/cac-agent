@@ -1,5 +1,6 @@
 package com.moesol.cac.agent.selector;
 
+import java.awt.Component;
 import java.io.Console;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -15,6 +16,14 @@ public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 	public TtyIdentityKeyChooser(IdentityKeyListProvider provider) {
 		this.provider = provider;
 		this.formatter = DefaultCertFormatter.INSTANCE;
+	}
+
+	public void setApplicationName(String applicationName) {
+		// not used by TtyIdentityKeyChooser
+	}
+
+	public void setParentComponent(Component parentComponent) {
+		// not used by TtyIdentityKeyChooser
 	}
 
 	public void setCertFormatter(IdentityKeyCertFormatter formatter) {
