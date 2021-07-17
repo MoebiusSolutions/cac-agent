@@ -166,6 +166,8 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 			if (aliases.length > 0) {
 				// only prompt user for alias selection if choices exist
 				choosenAlias = chooser.chooseFromAliases(aliases);
+			} else {
+				chooser.showNoIdentitiesFound();
 			}
 		} catch (Exception e) {
 			throw reportAndConvert(e);

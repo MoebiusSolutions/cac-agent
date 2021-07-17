@@ -13,6 +13,10 @@ public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 	public TtyIdentityKeyChooser(IdentityKeyListProvider provider) {
 		this.provider = provider;
 	}
+
+	public void showNoIdentitiesFound() {
+		System.out.println("No identities found");
+	}
 		
 	public String chooseFromAliases(final String[] aliases) throws InvocationTargetException, InterruptedException {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());

@@ -38,6 +38,15 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		this.provider = provider;
 	}
 	
+	public void showNoIdentitiesFound() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				JOptionPane.showMessageDialog(null, "No identities found", "Failed", JOptionPane.WARNING_MESSAGE);
+			}
+		});
+	}
+
 	public String chooseFromAliases(final String[] aliases) throws InvocationTargetException, InterruptedException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
