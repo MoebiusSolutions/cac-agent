@@ -16,6 +16,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -45,20 +46,22 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		this.formatter = formatter;
 	}
 
-	public void showNoIdentitiesFound() {
+	public void showNoIdentitiesFound(final String remoteHost) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				JOptionPane.showMessageDialog(null, "No identities found", "Failed", JOptionPane.WARNING_MESSAGE);
+				String message = "No certificates were found to authenticate to "
+					+ (remoteHost == null ? "the server." : remoteHost);
+				JOptionPane.showMessageDialog(null, message, "No Identities Found", JOptionPane.WARNING_MESSAGE);
 			}
 		});
 	}
 
-	public String chooseFromAliases(final String[] aliases) throws InvocationTargetException, InterruptedException {
+	public String chooseFromAliases(final String remoteHost, final String[] aliases) throws InvocationTargetException, InterruptedException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
-				choosenAlias = pickOnSwingThread(aliases);
+				choosenAlias = pickOnSwingThread(remoteHost, aliases);
 			}
 		});
 		return choosenAlias;
@@ -139,13 +142,17 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	}
 
 	@SuppressWarnings("serial")
-	private String pickOnSwingThread(String[] aliases) {
+	private String pickOnSwingThread(String remoteHost, String[] aliases) {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String choosenAlias = prefs.get("choosenAlias", "");
 
 		final JOptionPane pane = new JOptionPane();
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		if (remoteHost != null) {
+			panel.add(new JLabel("Select a certificate to authenticate yourself to " + remoteHost));
+			panel.add(Box.createVerticalStrut(10));
+		}
 
 		JButton preChoosen = null;
 		List<JButton> buttons = new ArrayList<JButton>();

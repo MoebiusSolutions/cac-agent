@@ -169,9 +169,9 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 			final String[] aliases = getClientAliases(null, issuers);
 			if (aliases.length > 0) {
 				// only prompt user for alias selection if choices exist
-				choosenAlias = chooser.chooseFromAliases(aliases);
+				choosenAlias = chooser.chooseFromAliases(peerKey, aliases);
 			} else {
-				chooser.showNoIdentitiesFound();
+				chooser.showNoIdentitiesFound(peerKey);
 			}
 		} catch (Exception e) {
 			throw reportAndConvert(e);

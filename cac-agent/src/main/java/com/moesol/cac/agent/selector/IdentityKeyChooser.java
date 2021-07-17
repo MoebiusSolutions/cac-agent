@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 
 public interface IdentityKeyChooser {
 	void setCertFormatter(IdentityKeyCertFormatter formatter);
-	void showNoIdentitiesFound();
-	String chooseFromAliases(final String[] aliases) throws InvocationTargetException, InterruptedException;
+	void showNoIdentitiesFound(String remoteHost);
+	String chooseFromAliases(String remoteHost, String[] aliases) throws InvocationTargetException, InterruptedException;
 	void reportException(final Exception e);
 	void showBusy(String string);
 	void hideBusy();

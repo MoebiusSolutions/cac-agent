@@ -21,11 +21,16 @@ public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 		this.formatter = formatter;
 	}
 
-	public void showNoIdentitiesFound() {
-		System.out.println("No identities found");
+	public void showNoIdentitiesFound(String remoteHost) {
+		System.out.println("No certificates were found to authenticate to "
+			+ (remoteHost == null ? "the server." : remoteHost));
 	}
 		
-	public String chooseFromAliases(final String[] aliases) throws InvocationTargetException, InterruptedException {
+	public String chooseFromAliases(final String remoteHost, final String[] aliases) throws InvocationTargetException, InterruptedException {
+		if (remoteHost != null) {
+			System.out.println("Select a certificate to authenticate yourself to " + remoteHost);
+		}
+
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String choosenAlias = prefs.get("choosenAlias", "");
 
