@@ -1,5 +1,7 @@
 package com.moesol.cac.agent.selector;
 
+import java.security.cert.X509Certificate;
+
 public interface IdentityKeyListProvider {
-	CertDescription[] makeCertList(String[] aliases);
+	X509Certificate[] makeCertList(String[] aliases);
 }

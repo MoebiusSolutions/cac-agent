@@ -13,7 +13,6 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +57,9 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 
 	public AbstractSelectorKeyManager() {
 	}
+	public IdentityKeyChooser getIdentityKeyChooser() {
+		return chooser;
+	}
 	public void setIdentityKeyChooser(IdentityKeyChooser chooser) {
 		this.chooser = chooser;
 	}
@@ -75,7 +77,7 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyManagementException
 	 */
-	public static void configureSwingKeyManagerAsDefault(Config config) throws NoSuchAlgorithmException, KeyManagementException {
+	public static AbstractSelectorKeyManager configureSwingKeyManagerAsDefault(Config config) throws NoSuchAlgorithmException, KeyManagementException {
 		if (CacHookingAgent.DEBUG) {
 			System.out.println("Context: " + CacHookingAgent.CONTEXT);
 		}
@@ -85,6 +87,8 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 		SSLContext.setDefault(sslContext);
 
 		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
+		return (AbstractSelectorKeyManager) kmgrs[0];
 	}
 
 	public static KeyManager[] makeKeyManagers(Config config) {
@@ -209,28 +213,23 @@ public abstract class AbstractSelectorKeyManager extends X509ExtendedKeyManager
 	}
 
 	@Override
-	public CertDescription[] makeCertList(String[] aliases) {
+	public X509Certificate[] makeCertList(String[] aliases) {
+		X509Certificate[] result = new X509Certificate[aliases.length];
 		if (keyStore == null) {
-			return new CertDescription[] { new CertDescription(null, "", "", "", ""), };
+			return result;
 		}
 
-		CertDescription[] result = new CertDescription[aliases.length];
 		for (int i = 0; i < aliases.length; i++) {
 			final String alias = aliases[i];
 			Certificate cert;
 			try {
 				cert = keyStore.getCertificate(alias);
 				X509Certificate x509 = (X509Certificate) cert;
+				result[i] = x509;
 
-				String purpose = X509PurposeDecoder.decode(x509);
-				String principal = x509.getSubjectX500Principal().getName();
-				Collection<List<?>> alt = x509.getSubjectAlternativeNames();
-				String names = alt == null ? x509.getSubjectX500Principal().toString() : alt.toString();
-				String issuer = x509.getIssuerX500Principal().getName();
-
-				result[i] = new CertDescription(alias, principal, purpose, names, issuer);
-			} catch (ClassCastException | KeyStoreException | CertificateParsingException e1) {
-				result[i] = new CertDescription(alias, "", "", "", "");
+			} catch (ClassCastException | KeyStoreException e1) {
+				// should not occur, since certs were retrieved/validated by getClientAliases
+				result[i] = null;
 			}
 		}
 		return result;

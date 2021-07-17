@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,14 +31,20 @@ import javax.swing.Timer;
 
 public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	private final IdentityKeyListProvider provider;
+	private IdentityKeyCertFormatter formatter;
 	private String choosenAlias;
 	private Timer maybeShowBusy = new Timer(1000, e -> showBusyNow());
 	private JDialog busy;
 	
 	public SwingIdentityKeyChooser(IdentityKeyListProvider provider) {
 		this.provider = provider;
+		this.formatter = DefaultCertFormatter.INSTANCE;
 	}
 	
+	public void setCertFormatter(IdentityKeyCertFormatter formatter) {
+		this.formatter = formatter;
+	}
+
 	public void showNoIdentitiesFound() {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -142,19 +149,23 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 
 		JButton preChoosen = null;
 		List<JButton> buttons = new ArrayList<JButton>();
-		for (final CertDescription cd : provider.makeCertList(aliases)) {
-			JButton jb = new JButton(cd.asHtml());
+		X509Certificate[] certs = provider.makeCertList(aliases);
+		for (int i = 0; i < aliases.length; i++) {
+			final String alias = aliases[i];
+			final X509Certificate cert = certs[i];
+			String html = formatter.asHtml(alias, cert);
+			JButton jb = new JButton(html);
 			jb.setHorizontalAlignment(SwingConstants.LEFT);
 			jb.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					pane.setValue(cd);
+					pane.setValue(alias);
 				}
 			});
 			panel.add(jb);
 			buttons.add(jb);
 
-			if (choosenAlias.equals(cd.getAlias())) {
+			if (choosenAlias.equals(alias)) {
 				preChoosen = jb;
 			}
 		}
@@ -184,19 +195,14 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		Object result = pane.getValue();
 		dialog.dispose();
 
-		if (result instanceof CertDescription) {
-			CertDescription cd = (CertDescription) result;
-			if (cd.getAlias() == null) {
-				return null;
-			}
-
-			prefs.put("choosenAlias", cd.getAlias());
+		if (result instanceof String && result != cancel) {
+			prefs.put("choosenAlias", (String) result);
 			try {
 				prefs.flush();
 			} catch (BackingStoreException e1) {
 				e1.printStackTrace();
 			}
-			return cd.getAlias();
+			return (String) result;
 		}
 		return null;
 	}

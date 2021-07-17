@@ -3,15 +3,22 @@ package com.moesol.cac.agent.selector;
 import java.io.Console;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.security.cert.X509Certificate;
 import java.util.Scanner;
 import java.util.prefs.Preferences;
 
 public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 	private final IdentityKeyListProvider provider;
+	private IdentityKeyCertFormatter formatter;
 	private final Scanner sc = new Scanner(System.in);
 	
 	public TtyIdentityKeyChooser(IdentityKeyListProvider provider) {
 		this.provider = provider;
+		this.formatter = DefaultCertFormatter.INSTANCE;
+	}
+
+	public void setCertFormatter(IdentityKeyCertFormatter formatter) {
+		this.formatter = formatter;
 	}
 
 	public void showNoIdentitiesFound() {
@@ -24,9 +31,11 @@ public class TtyIdentityKeyChooser implements IdentityKeyChooser {
 
 		int dident = -1;
 		int i = 1;
-		for (final CertDescription cd : provider.makeCertList(aliases)) {
-			System.out.printf("%d) %s%n", i, cd.asTty());
-			if (choosenAlias.equals(aliases[i - 1])) {
+		for (final X509Certificate cert : provider.makeCertList(aliases)) {
+			String alias = aliases[i - 1];
+			String text = formatter.asText(alias, cert);
+			System.out.printf("%d) %s%n", i, text);
+			if (choosenAlias.equals(alias)) {
 				dident = i;
 			}
 			i++;
