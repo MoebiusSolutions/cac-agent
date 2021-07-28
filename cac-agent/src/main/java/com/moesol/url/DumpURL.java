@@ -16,7 +16,7 @@ public class DumpURL {
 		try {
 			CacHookingAgent.maybeSetTrustFile();
 			Config config = new Config();
-			AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault(config);
+			AbstractSelectorKeyManager.configureSwingKeyManagerAsDefault(config, "Dump URL");
 
 			URL url = new URL(args[0]);
 			BufferedInputStream bis = new BufferedInputStream(url.openStream());

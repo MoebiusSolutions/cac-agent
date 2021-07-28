@@ -1,12 +1,16 @@
 package com.moesol.cac.agent.selector;
 
 import java.awt.AWTKeyStroke;
+import java.awt.Component;
+import java.awt.Image;
 import java.awt.KeyboardFocusManager;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +19,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -30,19 +35,47 @@ import javax.swing.Timer;
 
 public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	private final IdentityKeyListProvider provider;
+	private String applicationName;
+	private Component parentComponent;
+	private IdentityKeyCertFormatter formatter;
 	private String choosenAlias;
 	private Timer maybeShowBusy = new Timer(1000, e -> showBusyNow());
 	private JDialog busy;
 	
 	public SwingIdentityKeyChooser(IdentityKeyListProvider provider) {
 		this.provider = provider;
+		this.formatter = DefaultCertFormatter.INSTANCE;
 	}
 	
-	public String chooseFromAliases(final String[] aliases) throws InvocationTargetException, InterruptedException {
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
+
+	public void setParentComponent(Component parentComponent) {
+		this.parentComponent = parentComponent;
+	}
+
+	public void setCertFormatter(IdentityKeyCertFormatter formatter) {
+		this.formatter = formatter;
+	}
+
+	public void showNoIdentitiesFound(final String remoteHost) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				String title = makeTitle("No Identities Found");
+				String message = "No certificates were found to authenticate to "
+					+ (remoteHost == null ? "the server." : remoteHost);
+				JOptionPane.showMessageDialog(getParent(), message, title, JOptionPane.WARNING_MESSAGE);
+			}
+		});
+	}
+
+	public String chooseFromAliases(final String remoteHost, final String[] aliases) throws InvocationTargetException, InterruptedException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
-				choosenAlias = pickOnSwingThread(aliases);
+				choosenAlias = pickOnSwingThread(remoteHost, aliases);
 			}
 		});
 		return choosenAlias;
@@ -52,7 +85,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Failed", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getParent(), e.getLocalizedMessage(), makeTitle("Failed"), JOptionPane.ERROR_MESSAGE);
 			}
 		});
 	}
@@ -62,7 +95,8 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 			@Override
 			public void run() {
 				JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
-				busy = pane.createDialog("CAC");
+				busy = pane.createDialog(parentComponent, makeTitle("CAC"));
+				setWindowIcon(busy);
 				busy.setModal(false);
 			}
 		});
@@ -101,6 +135,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		pane.setMessageType(JOptionPane.QUESTION_MESSAGE);
 		pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(busy, title);
+		setWindowIcon(dialog);
 		dialog.addWindowFocusListener(new WindowAdapter() {
 		    public void windowGainedFocus(WindowEvent e) {
 		    	pass.requestFocusInWindow();
@@ -123,29 +158,37 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	}
 
 	@SuppressWarnings("serial")
-	private String pickOnSwingThread(String[] aliases) {
+	private String pickOnSwingThread(String remoteHost, String[] aliases) {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String choosenAlias = prefs.get("choosenAlias", "");
 
 		final JOptionPane pane = new JOptionPane();
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		if (remoteHost != null) {
+			panel.add(new JLabel("Select a certificate to authenticate yourself to " + remoteHost));
+			panel.add(Box.createVerticalStrut(10));
+		}
 
 		JButton preChoosen = null;
 		List<JButton> buttons = new ArrayList<JButton>();
-		for (final CertDescription cd : provider.makeCertList(aliases)) {
-			JButton jb = new JButton(cd.asHtml());
+		X509Certificate[] certs = provider.makeCertList(aliases);
+		for (int i = 0; i < aliases.length; i++) {
+			final String alias = aliases[i];
+			final X509Certificate cert = certs[i];
+			String html = formatter.asHtml(alias, cert);
+			JButton jb = new JButton(html);
 			jb.setHorizontalAlignment(SwingConstants.LEFT);
 			jb.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					pane.setValue(cd);
+					pane.setValue(alias);
 				}
 			});
 			panel.add(jb);
 			buttons.add(jb);
 
-			if (choosenAlias.equals(cd.getAlias())) {
+			if (choosenAlias.equals(alias)) {
 				preChoosen = jb;
 			}
 		}
@@ -154,7 +197,8 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		String cancel = "Cancel";
 		pane.setOptions(new Object[] { cancel });
 
-		final JDialog dialog = pane.createDialog("Select Identity");
+		final JDialog dialog = pane.createDialog(getParent(), makeTitle("Select Identity"));
+		setWindowIcon(dialog);
 		bindArrowKeys(dialog);
 		panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("ENTER"), "selectKey");
 		panel.getActionMap().put("selectKey", new AbstractAction() {
@@ -175,19 +219,14 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		Object result = pane.getValue();
 		dialog.dispose();
 
-		if (result instanceof CertDescription) {
-			CertDescription cd = (CertDescription) result;
-			if (cd.getAlias() == null) {
-				return null;
-			}
-
-			prefs.put("choosenAlias", cd.getAlias());
+		if (result instanceof String && result != cancel) {
+			prefs.put("choosenAlias", (String) result);
 			try {
 				prefs.flush();
 			} catch (BackingStoreException e1) {
 				e1.printStackTrace();
 			}
-			return cd.getAlias();
+			return (String) result;
 		}
 		return null;
 	}
@@ -216,7 +255,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 //		JOptionPane.showMessageDialog(null, msg);
 		
 	    Object stringArray[] = { "OK", "Exit" };
-	    int r = JOptionPane.showOptionDialog(null, msg, title, 
+	    int r = JOptionPane.showOptionDialog(busy, msg, title, 
 	    		JOptionPane.YES_NO_OPTION, 
 	    		JOptionPane.QUESTION_MESSAGE, null, stringArray, stringArray[0]);
 	    switch (r) {
@@ -228,6 +267,38 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
     	default:
 	    	break;	
 	    }
+	}
+
+	protected Component getParent() {
+		if (busy != null && busy.isShowing()) {
+			return busy;
+		} else {
+			return parentComponent;
+		}
+	}
+
+	protected String makeTitle(final String baseTitle) {
+		if (applicationName == null) {
+			return baseTitle;
+		} else {
+			return baseTitle + " - " + applicationName;
+		}
+	}
+
+	protected void setWindowIcon(final Window w) {
+		Window parentWindow = null;
+		if (parentComponent instanceof Window) {
+			parentWindow = (Window) parentComponent;
+		} else if (parentComponent != null) {
+			parentWindow = SwingUtilities.getWindowAncestor(parentComponent);
+		}
+
+		if (parentWindow != null) {
+			List<Image> iconImages = parentWindow.getIconImages();
+			if (iconImages != null && !iconImages.isEmpty()) {
+				w.setIconImages(iconImages);
+			}
+		}
 	}
 
 }

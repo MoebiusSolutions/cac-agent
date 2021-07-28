@@ -1,0 +1,16 @@
+1.3.6.1.4.1.311.10.3.12: Document Signing
+1.3.6.1.4.1.311.20.2.2: Smart Card Logon
+1.3.6.1.4.1.311.80.1: Document Encryption
+1.3.6.1.5.2.3.4: Client Authentication
+1.3.6.1.5.2.3.5: KDC Authentication
+1.3.6.1.5.5.7.3.1: Server Authentication
+1.3.6.1.5.5.7.3.2: Client Authentication
+1.3.6.1.5.5.7.3.3: Code Signing
+1.3.6.1.5.5.7.3.4: Secure Email
+1.3.6.1.5.5.7.3.8: Time Stamping
+1.3.6.1.5.5.7.3.9: OCSP Signing
+1.3.6.1.5.5.7.3.21: Secure Shell Client
+2.16.840.1.101.3.6.7: PIV Content Signing
+2.16.840.1.101.3.6.8: PIV Card Authentication
+2.16.840.1.101.3.8.7: PIV-I Content Signing
+2.5.29.37.0: Any Purpose
