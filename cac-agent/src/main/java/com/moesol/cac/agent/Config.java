@@ -26,6 +26,7 @@ public class Config {
 	private String master = null;
 	private final Map<String, String> relays = new HashMap<>();
 	private final Map<String, String> secureRelays = new HashMap<>();
+	private final Map<String, String> socks5Proxies = new HashMap<>();
 
 	public boolean isTty() {
 		return tty;
@@ -120,6 +121,9 @@ public class Config {
 	public Map<String, String> getSecureRelays() {
 		return secureRelays;
 	}
+	public Map<String, String> getSocks5Proxies() {
+		return socks5Proxies;
+	}
 
 	public static Config loadFromUserHome() {
 		String userHome = System.getProperty("user.home");
@@ -161,8 +165,13 @@ public class Config {
 				;
 			p.keySet().stream()
 				.map(Object::toString)
-				.filter(Config::isSecuryRelayKey)
+				.filter(Config::isSecureRelayKey)
 				.forEach(k -> result.addSecureRelay(k, p.getProperty(k)));
+				;
+			p.keySet().stream()
+				.map(Object::toString)
+				.filter(Config::isSocks5Proxy)
+				.forEach(k -> result.addSocks5Proxy(k, p.getProperty(k)));
 				;
 			return result;
 		}
@@ -174,12 +183,19 @@ public class Config {
 		key = key.replaceFirst("^relay\\.", "");
 		relays.put(key, value);
 	}
-	private static boolean isSecuryRelayKey(String key) {
+	private static boolean isSecureRelayKey(String key) {
 		return key.startsWith("sslRelay.");
 	}
 	private void addSecureRelay(String key, String value) {
 		key = key.replaceFirst("^sslRelay\\.", "");
 		secureRelays.put(key, value);
+	}
+	private static boolean isSocks5Proxy(String key) {
+		return key.startsWith("socks5.");
+	}
+	private void addSocks5Proxy(String key, String value) {
+		key = key.replaceFirst("^socks5\\.", "");
+		socks5Proxies.put(key, value);
 	}
 	
 	public static File computeProfileFolder() {

@@ -20,10 +20,12 @@ public class Main {
 	private static Logger LOGGER = Logger.getLogger(Main.class.getName());
 	private final Map<String, String> bindings;
 	private final Map<String, String> secureBindings;
+	private final Map<String, String> socks5Proxies;
 
 	public Main(Config config) {
 		bindings = config.getRelays();
 		secureBindings = config.getSecureRelays();
+		socks5Proxies = config.getSocks5Proxies();
 	}
 
 	public static void main(String[] args) throws IOException, KeyManagementException, NoSuchAlgorithmException {
@@ -42,6 +44,7 @@ public class Main {
 	public void run() {
 		List<Thread> threads = bindings.entrySet().stream().map(this::makeThreadForEntry).collect(Collectors.toList());
 		List<Thread> threads2 = secureBindings.entrySet().stream().map(this::makeSslThreadForEntry).collect(Collectors.toList());
+		List<Thread> threads3 = socks5Proxies.entrySet().stream().map(this::makeSocks5Proxy).collect(Collectors.toList());
 		if (threads.size() == 0) {
 			LOGGER.log(Level.WARNING, "No bindings configured in agent.properties file");
 		} else {
@@ -49,6 +52,7 @@ public class Main {
 		}
 		threads.forEach(this::join);
 		threads2.forEach(this::join);
+		threads3.forEach(this::join);
 	}
 
 	public Thread makeThreadForEntry(Entry<String, String> entry) {
@@ -65,6 +69,14 @@ public class Main {
 		URI dst = parse(entry.getValue());
 
 		SslServerRelay relay = new SslServerRelay(src.getHost(), src.getPort(), dst.getHost(), dst.getPort());
+		return thread(relay::run);
+	}
+
+	public Thread makeSocks5Proxy(Entry<String, String> entry) {
+		System.out.println("socks5: " + entry);
+		URI bind = parse(entry.getValue());
+
+		Socks5Proxy relay = new Socks5Proxy(bind.getHost(), bind.getPort());
 		return thread(relay::run);
 	}
 
