@@ -3,8 +3,13 @@ package com.moesol.cac.relay;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Socks5Protocol {
+	private static final Logger LOGGER = Logger.getLogger(Socks5Protocol.class.getName());
+
 	// From https://datatracker.ietf.org/doc/html/rfc1928
 	private static final int VER = 0;
 	private static final byte SOCKS5 = 0x05;
@@ -39,7 +44,8 @@ public class Socks5Protocol {
 	}
 
 	public static void writeSelectedMethod(DataOutputStream out, byte method) throws IOException {
-		out.write(new byte[]{ SOCKS5, method });
+		byte[] bytes = new byte[]{ SOCKS5, method };
+		loggedWrite(out, bytes, "SELECTED METHOD");
 	}
 
 	public static byte readRequest(DataInputStream in) throws IOException {
@@ -59,7 +65,26 @@ public class Socks5Protocol {
 		bytes[VER] = SOCKS5;
 		bytes[REP] = reply;
 		bytes[RSV] = RESERVED;
+		loggedWrite(out, bytes, "REPLY");
+	}
+
+	public static void loggedWrite(DataOutputStream out, byte[] bytes, String why) throws IOException {
+		LOGGER.log(Level.FINE, () -> why + ": " + bytesToHexString(bytes));
 		out.write(bytes);
+	}
+	public static void loggedWrite(DataOutputStream out, byte aByte, String why) throws IOException {
+		LOGGER.log(Level.FINE, () -> why + ": " + String.format("%02x", aByte));
+		out.write(aByte);
+	}
+
+	public static String bytesToHexString(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		try (Formatter formatter = new Formatter(sb)) {
+			for (byte b : bytes) {
+				formatter.format("%02x", b);
+			}
+		}
+		return sb.toString();
 	}
 
 }

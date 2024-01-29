@@ -53,9 +53,10 @@ public class Socks5Proxy {
 					handshake(in, out);
 					handleRequest(in, out, clientSocket);
 				} catch (IOException e) {
+					LOGGER.log(Level.WARNING, "Connection failure", e);
 					close(in, out, clientSocket);
 				} catch (Exception e) {
-					LOGGER.log(Level.WARNING, "Connection failed", e);
+					LOGGER.log(Level.WARNING, "Unknown connection failure", e);
 					close(in, out, clientSocket);
 				}
 			}
