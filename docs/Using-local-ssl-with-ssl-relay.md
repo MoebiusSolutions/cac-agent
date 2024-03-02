@@ -56,7 +56,7 @@ Launch cac-ssl-relay
 ----------------
 
 Now that cac-ssl-relay is configured to listen for HTTPS requests, it needs to know where
-to find it's own certificate/key. We point to the `.pfx` file at when launching it:
+to find it's own certificate/key. We point to the `.pfx` file (`.pfx` is the Java 11 default format) at when launching it:
 
 	java \
 	  -Djavax.net.ssl.keyStoreType=pkcs12 \
