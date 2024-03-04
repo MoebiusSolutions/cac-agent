@@ -70,7 +70,7 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	
 	@Override
 	protected KeyStore accessKeyStore() throws KeyStoreException {
-		chooser.showBusy("Accessing CAC...");
+		chooser.showBusy("Accessing Smart Card...");
 		try {
 			// Try to get a keystore from any of the builders
 			// The first success wins, if all fail, report last failure.
