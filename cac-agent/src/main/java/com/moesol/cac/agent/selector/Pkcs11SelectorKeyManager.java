@@ -21,7 +21,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.JOptionPane;
 
 import com.moesol.cac.agent.Config;
-import com.moesol.cac.agent.Pkcs11System;
+import com.moesol.cac.agent.Pkcs11Provider;
 
 public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	private static Logger LOGGER = Logger.getLogger(Pkcs11SelectorKeyManager.class.getName());
@@ -195,7 +195,7 @@ public class Pkcs11SelectorKeyManager extends AbstractSelectorKeyManager {
 	}
 
 	private void addPkcs11ProviderFromFile(String configName, List<Provider> providers) {
-		Provider provider = Pkcs11System.getProvider(configName);
+		Provider provider = Pkcs11Provider.get(configName);
 		Security.addProvider(provider);
 		providers.add(provider);
 		LOGGER.log(Level.INFO, "Provider: {0}", provider.getInfo());
