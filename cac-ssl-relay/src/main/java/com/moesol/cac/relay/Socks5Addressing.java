@@ -1,6 +1,7 @@
 package com.moesol.cac.relay;
 
 import static com.moesol.cac.relay.Socks5Protocol.loggedWrite;
+import static com.moesol.cac.relay.Socks5Protocol.java8readNBytes;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -50,11 +51,11 @@ public class Socks5Addressing {
         byte atyp = in.readByte();
 		switch (atyp) {
 		case IP_V4:
-			return Inet4Address.getByAddress(in.readNBytes(4));
+			return Inet4Address.getByAddress(java8readNBytes(in, 4));
 		case FQDN:
-			return InetAddress.getByName(new String(in.readNBytes(in.readByte())));
+			return InetAddress.getByName(new String(java8readNBytes(in, in.readByte())));
 		case IP_V6:
-			return Inet6Address.getByAddress(in.readNBytes(16));
+			return Inet6Address.getByAddress(java8readNBytes(in, 16));
 		}
 		throw new UnsupportedOperationException("Unknown address type");
 	}

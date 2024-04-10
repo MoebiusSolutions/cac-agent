@@ -1,5 +1,7 @@
 package com.moesol.cac.relay;
 
+import static com.moesol.cac.relay.Socks5Protocol.java8readNBytes;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -73,7 +75,7 @@ public class Socks5Proxy {
 
 	private void handshake(DataInputStream in, DataOutputStream out) throws IOException {
 		byte nmethods = Socks5Protocol.readMethods(in);
-		byte[] methods = in.readNBytes(nmethods);
+		byte[] methods = java8readNBytes(in, nmethods);
 
 		// Check for NO AUTHENTICATION REQUIRED
 		boolean foundNoAuth = false;
