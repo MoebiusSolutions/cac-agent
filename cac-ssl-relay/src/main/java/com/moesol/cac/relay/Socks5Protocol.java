@@ -77,6 +77,22 @@ public class Socks5Protocol {
 		out.write(aByte);
 	}
 
+	/**
+	 * Polyfill {@code DataInputStream.readNBytes}.
+	 * The behavior is slightly different.
+	 * This method gives {@code IOException} if all the bytes cannot be read.
+	 * 
+	 * @param in
+	 * @param num
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] java8readNBytes(DataInputStream in, int num) throws IOException {
+        byte[] result = new byte[num];
+        in.readFully(result);
+        return result;
+    }
+
 	public static String bytesToHexString(byte[] bytes) {
 		StringBuilder sb = new StringBuilder();
 		try (Formatter formatter = new Formatter(sb)) {
