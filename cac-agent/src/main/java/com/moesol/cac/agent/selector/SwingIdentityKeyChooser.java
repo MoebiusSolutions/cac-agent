@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -50,9 +52,9 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 	private JFrame defaultParent;
 	private Timer maybeHideDefault = new Timer(1000, e -> hideDefault());
 	private IdentityKeyCertFormatter formatter;
-	private String choosenAlias;
 	private Timer maybeShowBusy = new Timer(1000, e -> showBusyNow());
 	private JDialog busy;
+	private String busyMessage = "Busy";
 	private boolean reportedSystemTrayUnsupported = false;
 	
 	public SwingIdentityKeyChooser(IdentityKeyListProvider provider) {
@@ -61,18 +63,22 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		maybeHideDefault.start();
 	}
 	
+	@Override
 	public void setApplicationName(String applicationName) {
 		this.applicationName = applicationName;
 	}
 
+	@Override
 	public void setParentComponent(Component parentComponent) {
 		this.parentComponent = parentComponent;
 	}
 
+	@Override
 	public void setCertFormatter(IdentityKeyCertFormatter formatter) {
 		this.formatter = formatter;
 	}
 
+	@Override
 	public void showNoIdentitiesFound(final String remoteHost) {
 		laterWithJFrame(frame -> {
 			String title = makeTitle("No Identities Found");
@@ -83,16 +89,14 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		});
 	}
 
+	@Override
 	public String chooseFromAliases(final String remoteHost, final String[] aliases) throws InvocationTargetException, InterruptedException {
-		SwingUtilities.invokeAndWait(new Runnable() {
-			@Override
-			public void run() {
-				choosenAlias = pickOnSwingThread(remoteHost, aliases);
-			}
+		return invokeAndWait(() -> {
+			return pickOnSwingThread(remoteHost, aliases);
 		});
-		return choosenAlias;
 	}
 	
+	@Override
 	public void reportException(final Exception e) {
 		laterWithJFrame(frame -> {
 			String msg = e.getLocalizedMessage();
@@ -101,35 +105,47 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		});
 	}
 	
+	@Override
 	public void showBusy(final String message) {
-		JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
-		busy = pane.createDialog(getParent(), makeTitle(TITLE));
-		setWindowIcon(busy);
-		addTrayNotification(message, TrayIcon.MessageType.INFO);
-		busy.setModal(false);
-
-		maybeShowBusy.setInitialDelay(3000);
-		maybeShowBusy.setRepeats(false);
-		maybeShowBusy.start();
+		SwingUtilities.invokeLater(() -> {
+			System.out.printf("%s: %s, %s%n", makeTitle(TITLE), message, SwingUtilities.isEventDispatchThread());
+			busyMessage = message;
+			maybeShowBusy.setInitialDelay(1000); // Show after one second
+			maybeShowBusy.setRepeats(false);
+			maybeShowBusy.start();
+		});
 	}
 	
 	public void showBusyNow() {
-		busy.setVisible(true);
-	}
-
-	public void hideBusy() {
-		maybeShowBusy.stop();
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				busy.setVisible(false);
-				busy.dispose();
-				busy = null;
-			}
+		laterWithJFrame(frame -> {
+			JOptionPane pane = new JOptionPane(busyMessage, JOptionPane.INFORMATION_MESSAGE);
+			busy = pane.createDialog(frame, makeTitle(TITLE));
+			setWindowIcon(busy);
+			addTrayNotification(busyMessage, TrayIcon.MessageType.INFO);
+			busy.setModal(false);
+			busy.setVisible(true);
 		});
 	}
 
+	@Override
+	public void hideBusy() {
+		SwingUtilities.invokeLater(() -> {
+			maybeShowBusy.stop();
+			if (busy == null) { return; }
+			busy.setVisible(false);
+			busy.dispose();
+			busy = null;
+		});
+	}
+
+	@Override
 	public char[] promptForPin(String title, String prompt) {
+		return invokeAndWait(() -> {
+			return promptForPinOnSwingThread(title, prompt);
+		});
+	}
+
+	private char[] promptForPinOnSwingThread(String title, String prompt) {
 		JLabel label = new JLabel(prompt);
 		final JPasswordField pass = new JPasswordField(10);
 
@@ -166,7 +182,6 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		return null;
 	}
 
-	@SuppressWarnings("serial")
 	private String pickOnSwingThread(String remoteHost, String[] aliases) {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String choosenAlias = prefs.get("choosenAlias", "");
@@ -240,6 +255,25 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 		return null;
 	}
 
+	/**
+	 * Invoke on swing thread and wait for result.
+	 * @param <T>
+	 * @param supplier
+	 * @return value returned from supplier
+	 */
+	private <T> T invokeAndWait(Supplier<T> supplier) {
+		// Do not need the atomic part, but convenient to hold the result and set it from swing thread.
+		AtomicReference<T> result = new AtomicReference<>();
+		try {
+			SwingUtilities.invokeAndWait(() -> {
+				result.set(supplier.get());
+			});
+			return result.get();
+		} catch (InvocationTargetException | InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private void bindArrowKeys(JDialog dialog) {
 		{
 			Set<AWTKeyStroke> forwardKeys = dialog.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
@@ -260,22 +294,25 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 
 	@Override
 	public void promptForCardInsertion(String title, String error) {
-		String msg = error + "\n\nInsert Smart Card";
+		invokeAndWait(() -> {
+			String msg = error + "\n\nInsert Smart Card";
 		
-	    Object stringArray[] = { "OK", "Exit" };
-	    int r = JOptionPane.showOptionDialog(getParent(), msg, title, 
-	    		JOptionPane.YES_NO_OPTION, 
-	    		JOptionPane.QUESTION_MESSAGE, null, stringArray, stringArray[0]);
-		addTrayNotification(msg, TrayIcon.MessageType.INFO);
-	    switch (r) {
-	    case JOptionPane.OK_OPTION:
-	    	break;
-	    case JOptionPane.NO_OPTION:
-	    	System.exit(0);
-	    	break;
-    	default:
-	    	break;	
-	    }
+			Object stringArray[] = { "OK", "Exit" };
+			int r = JOptionPane.showOptionDialog(getParent(), msg, title, 
+					JOptionPane.YES_NO_OPTION, 
+					JOptionPane.QUESTION_MESSAGE, null, stringArray, stringArray[0]);
+			addTrayNotification(msg, TrayIcon.MessageType.INFO);
+			switch (r) {
+			case JOptionPane.OK_OPTION:
+				break;
+			case JOptionPane.NO_OPTION:
+				System.exit(0);
+				break;
+			default:
+				break;	
+			}
+			return r;
+		});
 	}
 
 	protected Component getParent() {
@@ -315,6 +352,7 @@ public class SwingIdentityKeyChooser implements IdentityKeyChooser {
 			}
 		}
 		if (visible == 0) {
+			System.out.println("Hiding/disposing default");
 			defaultParent.setVisible(false);
 			defaultParent.dispose();
 			defaultParent = null;
