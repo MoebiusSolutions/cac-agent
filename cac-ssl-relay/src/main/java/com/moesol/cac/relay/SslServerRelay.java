@@ -69,9 +69,13 @@ public class SslServerRelay {
 		}
 	}
 
-	private void relayTo(Socket clientSocket) throws UnknownHostException, IOException {
-		SocketSupplier reconnect = () -> SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
-		new BiDirectionalRelay(clientSocket, reconnect.get(), reconnect);
+	private void relayTo(Socket clientSocket) {
+		try {
+			SocketSupplier reconnect = () -> SSLSocketFactory.getDefault().createSocket(this.targetHost, this.targetPort);
+			new BiDirectionalRelay(clientSocket, reconnect.get(), reconnect);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e, () -> String.format("Failed to relay to %s", this.targetHost + ":" + this.targetPort));
+		}
 	}
 
 	private static String keyStore() {
