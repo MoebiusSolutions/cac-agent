@@ -119,4 +119,10 @@ This optional test is intended for Linux/macOS and never initializes a real card
 
 Build separately on each target operating system. The stable bundle includes the Bun application, UI, and native addon under `build/stable-<platform>-<arch>/`. Windows certificate-store mode needs the normal Windows smart-card driver; OpenSSL-based modes additionally need their native libraries/providers. See [Electrobun's distribution guide](https://framework.blackboard.sh/electrobun/guides/quick-start/) for build details. Linux and Windows x64 builds and native TLS tests have been verified. Physical CAC/vendor-middleware behavior and macOS builds still need validation. Code signing and automatic updates are not configured.
 
+Application icons are configured in `electrobun.config.ts`: Windows uses the multi-resolution `assets/icon.ico`, Linux uses `assets/icon.png`, and macOS builds `assets/icon.iconset` into an ICNS resource with Apple's `iconutil` (Command Line Tools required).
+
+The Windows main window also loads `Resources/app.ico` at runtime for its title bar and Alt+Tab icons. This supplies the window icons that Electrobun 2.0.5 leaves unset.
+
+To export the platform files again from `assets/icon-master.png`, run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/export-icons.ps1` on Windows. The script uses Windows `System.Drawing` for resizing and preserves transparency; it also produces a standalone `assets/icon.icns`.
+
 The Windows build produces `artifacts/win-x64-CACSSLRelay-Setup.zip`. Extract the entire ZIP, including its `.installer` directory, then run `CAC SSL Relay-Setup.exe`. The application uses WebView2. Keep the installer payload beside the executable when distributing or running setup.

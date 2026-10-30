@@ -4,7 +4,7 @@ export default {
   app: {
     name: "CAC SSL Relay",
     identifier: "com.moesol.cac.sslrelay",
-    version: "0.2.0",
+    version: "0.2.2",
   },
   build: {
     mainProcess: "bun",
@@ -17,8 +17,8 @@ export default {
       "src/mainview/index.css": "views/mainview/index.css",
       "node_modules/koffi": "node_modules/koffi",
     },
-    mac: { bundleCEF: false },
-    linux: { bundleCEF: false },
-    win: { bundleCEF: false },
+    mac: { bundleCEF: false, icons: "assets/icon.iconset" },
+    linux: { bundleCEF: false, icon: "assets/icon.png" },
+    win: { bundleCEF: false, icon: "assets/icon.ico" },
   },
 } satisfies ElectrobunConfig;

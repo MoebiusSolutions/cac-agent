@@ -1,8 +1,10 @@
-import Electrobun, { BrowserView, BrowserWindow, Utils, type ElectrobunEvent } from "electrobun/main";
+import Electrobun, { BrowserView, BrowserWindow, PATHS, Utils, type ElectrobunEvent } from "electrobun/main";
+import { join } from "node:path";
 import { readConfiguration, saveConfiguration } from "./configuration";
 import { RelayEngine } from "./relay-engine";
 import { defaultSettings, SettingsStore } from "./settings";
 import { listWindowsCertificates } from "./windows-certificates";
+import { installWindowsWindowIcon } from "./windows-window-icon";
 import type { RelayRPC, Result } from "../shared/types";
 
 const relay = new RelayEngine();
@@ -80,6 +82,12 @@ const window = new BrowserWindow({
   rpc,
 });
 
+let releaseWindowIcon = () => {};
+if (process.platform === "win32") {
+  try { releaseWindowIcon = installWindowsWindowIcon(window.ptr, join(PATHS.RESOURCES_FOLDER, "app.ico")); }
+  catch (error) { console.warn("Could not apply the Windows window icon:", error); }
+}
+
 let quitApproved = false;
 let shutdown: Promise<void> | null = null;
 function stopAndQuit(): void {
@@ -88,6 +96,7 @@ function stopAndQuit(): void {
   shutdown = (async () => {
     await operations;
     await relay.stop();
+    releaseWindowIcon();
     quitApproved = true;
     Utils.quit();
   })();

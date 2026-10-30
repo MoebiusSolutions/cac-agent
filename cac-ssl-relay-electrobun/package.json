@@ -1,6 +1,6 @@
 {
   "name": "cac-ssl-relay-electrobun",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "private": true,
   "type": "module",
   "description": "Electrobun desktop application for cac-ssl-relay",
