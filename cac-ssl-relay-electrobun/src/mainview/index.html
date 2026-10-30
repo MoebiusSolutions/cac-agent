@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAC SSL Relay</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4.5 6v5.5c0 4.1 2.8 7.4 7.5 9.5 4.7-2.1 7.5-5.4 7.5-9.5V6L12 3Z" stroke="currentColor" stroke-width="1.5"/><path d="m13 7-4 6h3l-1 4 4-6h-3l1-4Z" fill="currentColor"/></svg>
+          </div>
+          <div><h1>CAC SSL Relay</h1><p>Smart-card access for your developer tools</p></div>
+        </div>
+        <span class="desktop-label"><span></span> Electrobun desktop</span>
+      </header>
+
+      <main>
+        <div id="notification" class="notification" role="alert" hidden></div>
+
+        <section class="status-panel" aria-labelledby="status-heading">
+          <div class="status-main"><span id="status-dot" class="status-dot"></span><div><p class="eyebrow">RELAY ENGINE</p><h2 id="status-heading">Connecting to desktop…</h2><p id="process-detail">Loading your local configuration.</p></div></div>
+          <div class="process-actions"><button id="start" class="button primary" disabled>Start relay</button><button id="restart" class="button" disabled>Restart</button><button id="stop" class="button" disabled>Stop</button></div>
+        </section>
+
+        <div class="workspace-grid">
+          <section class="panel runtime-panel" aria-labelledby="runtime-heading">
+            <div class="panel-heading"><div><p class="eyebrow">01 / RUNTIME</p><h2 id="runtime-heading">Launch settings</h2></div><span id="settings-saved" class="save-label">Loading</span></div>
+            <form id="runtime-form">
+              <label for="config-directory">Configuration directory</label>
+              <input id="config-directory" name="configDirectory" type="text" spellcheck="false" required placeholder="/path/to/.moesol/cac-agent" />
+              <div class="load-row"><span id="config-file-status" class="field-hint">Relay bindings in agent.properties</span><button id="load-configuration" class="text-button" type="button">Load</button></div>
+
+              <div id="openssl-settings">
+                <label for="ssl-library-path">OpenSSL 3 TLS library</label>
+                <input id="ssl-library-path" name="sslLibraryPath" type="text" spellcheck="false" required placeholder="libssl.so.3" />
+                <label for="crypto-library-path">OpenSSL 3 crypto library</label>
+                <input id="crypto-library-path" name="cryptoLibraryPath" type="text" spellcheck="false" required placeholder="libcrypto.so.3" />
+              </div>
+              <label for="identity-mode">Upstream client identity</label>
+              <select id="identity-mode" name="identityMode"><option id="ncrypt-option" value="ncrypt" hidden disabled>Windows smart card / NCrypt</option><option value="pkcs11">CAC / PKCS#11 token</option><option value="pem">PEM certificate and key</option><option value="none">Server TLS only</option></select>
+              <div id="windows-settings" hidden>
+                <p class="identity-help field-hint">Choose a client certificate from your Windows certificate store. Windows handles smart-card access and PIN prompts.</p>
+                <label for="windows-certificate-id">Windows client certificate</label>
+                <select id="windows-certificate-id" name="windowsCertificateId" aria-describedby="windows-certificate-status windows-certificate-details"><option value="">Select a certificate…</option></select>
+                <div class="certificate-refresh-row"><span id="windows-certificate-status" class="field-hint" role="status" aria-live="polite">Insert your CAC, then refresh certificates.</span><button id="refresh-certificates" class="text-button" type="button">Refresh certificates</button></div>
+                <dl id="windows-certificate-details" class="certificate-details" hidden></dl>
+                <p class="field-hint session-note">Your private key stays on the card. Enter your PIN only in the Windows dialog when a connection needs it.</p>
+              </div>
+              <div id="pkcs11-settings">
+                <label for="provider-path">OpenSSL PKCS#11 provider</label>
+                <input id="provider-path" name="providerPath" type="text" spellcheck="false" placeholder="/path/to/pkcs11.so" />
+                <label for="pkcs11-module-path">Smart-card middleware module</label>
+                <input id="pkcs11-module-path" name="pkcs11ModulePath" type="text" spellcheck="false" placeholder="/path/to/opensc-pkcs11.so" />
+              </div>
+              <div id="identity-settings">
+                <p id="identity-help" class="identity-help field-hint">Select your certificate and key by PKCS#11 URI. Signing stays on the card.</p>
+                <label for="certificate">Client certificate / chain</label>
+                <input id="certificate" name="certificate" type="text" spellcheck="false" placeholder="pkcs11:object=CAC%20ID;type=cert" />
+                <label for="private-key">Private-key reference</label>
+                <input id="private-key" name="privateKey" type="text" spellcheck="false" placeholder="pkcs11:object=CAC%20ID;type=private" />
+                <label id="pin-label" for="token-pin">Token PIN</label>
+                <input id="token-pin" type="password" autocomplete="off" placeholder="Session only" />
+                <p class="field-hint session-note">Your PIN or key passphrase is never saved.</p>
+              </div>
+              <label for="ca-file">Trusted CA bundle <span class="label-optional">Optional</span></label>
+              <input id="ca-file" name="caFile" type="text" spellcheck="false" placeholder="System OpenSSL trust by default" />
+
+              <details id="tls-settings"><summary>Local TLS settings <span>Optional</span></summary><div class="tls-fields">
+                <p class="field-hint">Required for TLS → TLS listeners. Client tools must trust the local server certificate.</p>
+                <label for="local-certificate-path">Server certificate / chain (PEM)</label>
+                <input id="local-certificate-path" name="localCertificatePath" type="text" spellcheck="false" placeholder="/path/to/local-chain.pem" />
+                <label for="local-key-path">Server private key (PEM)</label>
+                <input id="local-key-path" name="localKeyPath" type="text" spellcheck="false" placeholder="/path/to/local-key.pem" />
+                <label for="local-key-passphrase">Local-key passphrase</label>
+                <input id="local-key-passphrase" type="password" autocomplete="off" placeholder="Session only, if encrypted" />
+                <p class="field-hint session-note">The passphrase is used for this session and is never saved.</p>
+              </div></details>
+              <button id="save-settings" class="button full-width" type="submit" disabled>Save launch settings</button>
+            </form>
+            <div class="smart-card-note"><span class="note-icon" aria-hidden="true">↳</span><p id="smart-card-help">Insert your CAC before starting. The native PKCS#11 provider uses your selected key without exporting it from the card.</p></div>
+          </section>
+
+          <section class="panel bindings-panel" aria-labelledby="bindings-heading">
+            <div class="panel-heading"><div><p class="eyebrow">02 / CONNECTIONS</p><h2 id="bindings-heading">Relay bindings <span id="binding-count" class="count">0</span></h2></div><button id="add-binding" class="text-button" disabled>+ Add binding</button></div>
+            <p class="section-description">Connect your tools to a local listener. The relay adds CAC-backed TLS to the upstream connection.</p>
+            <div id="bindings" class="binding-list"></div>
+            <div id="empty-bindings" class="empty-state" hidden><div class="empty-glyph" aria-hidden="true">⇄</div><h3>No bindings configured</h3><p>Add a local listener and a destination, or load an existing configuration directory.</p><button id="add-first-binding" class="button" disabled>Add your first binding</button></div>
+            <div class="bindings-footer"><div><span id="bindings-saved" class="save-label">Loading</span><p id="bindings-help" class="field-hint">Other agent.properties settings are preserved.</p></div><button id="save-bindings" class="button primary" disabled>Save bindings</button></div>
+            <div class="proxy-note"><span class="small-tag">SOCKS5</span><p>The SOCKS5 mode adds TLS upstream. Use it with a client sending plaintext through the proxy.</p></div>
+          </section>
+        </div>
+
+        <section class="panel logs-panel" aria-labelledby="logs-heading">
+          <div class="logs-heading"><div><span class="terminal-symbol" aria-hidden="true">›_</span><h2 id="logs-heading">Activity log</h2><span id="log-count" class="count">0</span></div><div class="log-actions"><label class="checkbox-label"><input id="follow-logs" type="checkbox" checked /> Follow</label><button id="clear-logs" class="text-button" disabled>Clear</button></div></div>
+          <div id="logs" class="log-output" role="log" aria-label="Relay activity" tabindex="0"><p class="logs-empty">Relay activity will appear here when you start.</p></div>
+        </section>
+        <footer class="app-footer"><span>LOCAL CONNECTIONS · CAC-AUTHENTICATED TLS</span><span id="save-hint">Save your settings and bindings before starting.</span></footer>
+      </main>
+    </div>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>

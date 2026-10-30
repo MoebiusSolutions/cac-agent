@@ -6,6 +6,10 @@ Overview
 
 This package has the following major components:
 
+* **[cac-ssl-relay-electrobun](cac-ssl-relay-electrobun/README.md)**: An Electrobun desktop application for the SSL relay
+	* Edit relay bindings, choose runtime settings, start/stop/restart the relay, and view live logs
+	* Runs a TypeScript relay with Windows Schannel/NCrypt smart-card support and optional OpenSSL 3/PKCS#11 support; no Java dependency
+
 * **cac-ssl-relay**: A local daemon that transparently wraps traffic with a CAC-protected TLS tunnel
 	* Client applications can access the remote, CAC-protected services without any direct CAC integration
 	* When you connect through this daemon, you're only prompted for a CAC PIN on the first request

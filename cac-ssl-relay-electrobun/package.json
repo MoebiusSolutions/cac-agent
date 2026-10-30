@@ -1,0 +1,27 @@
+{
+  "name": "cac-ssl-relay-electrobun",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Electrobun desktop application for cac-ssl-relay",
+  "scripts": {
+    "setup": "electrobun prepare",
+    "start": "electrobun dev",
+    "dev": "electrobun dev --watch",
+    "build": "electrobun build --env=stable",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test tests"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.4",
+    "electrobun": "2.0.5",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "bun": ">=1.4.4"
+  },
+  "dependencies": {
+    "koffi": "2.16.3"
+  },
+  "trustedDependencies": ["koffi"]
+}
